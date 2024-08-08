@@ -156,7 +156,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                 // Timer task code here
                 // For example, update UI or perform periodic checks
                 // Example: Toast message
-                MainActivity.showToast(getActivity(),MainActivity.getReadGGAString());
+//                MainActivity.showToast(getActivity(),MainActivity.getReadGGAString());
 
                 // Schedule the next execution
                 timerHandler.postDelayed(this, 1000); // Repeat every 1 seconds

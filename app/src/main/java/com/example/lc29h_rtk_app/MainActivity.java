@@ -1,8 +1,14 @@
 package com.example.lc29h_rtk_app;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -16,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.lc29h_rtk_app.SocketService;
 import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
     public static String ReadGGSString=" ";
     public static String ReadRMCString=" ";
 
-    private static final Object lock = new Object();
+    public static SocketService socketService;
+    public static boolean isBound = false;
+
+    public static final Object lock = new Object();
     // 定义一个静态的Toast对象
     private static Toast toast;
 
@@ -41,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
             return ReadGGSString;
         }
     }
-
     // 设置 ReadGGSString
     public static void setReadGGAString(String newString) {
         synchronized (lock) {
@@ -55,13 +64,14 @@ public class MainActivity extends AppCompatActivity {
             return ReadRMCString;
         }
     }
-
     // 设置 ReadRMCString
     public static void setReadRMCString(String newString) {
         synchronized (lock) {
             ReadRMCString = newString;
         }
     }
+
+
 
 
     private BottomNavigationView mNavigationView;
@@ -74,6 +84,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 启动Socket服务
+        Intent SocketserviceIntent = new Intent(this, SocketService.class);
+        startService(SocketserviceIntent);
+
+
+
         mNavigationView = findViewById(R.id.main_navigation_bar);
 
         initFragment();
@@ -81,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Delay loading other fragments to avoid crash
         new Handler().postDelayed(this::loadOtherFragments, 500);
+
     }
 
     private void initFragment() {
@@ -146,5 +163,47 @@ public class MainActivity extends AppCompatActivity {
         // 创建新的Toast实例
         toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    // 服务连接
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SocketService.LocalBinder binder = (SocketService.LocalBinder) service;
+            socketService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
+
+    // 广播接收器，接收来自SocketService的消息
+    private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+//            receive1.setText(message);
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, SocketService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        registerReceiver(messageReceiver, new IntentFilter("com.example.ble.RECEIVE_MESSAGE"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
+        unregisterReceiver(messageReceiver);
     }
 }

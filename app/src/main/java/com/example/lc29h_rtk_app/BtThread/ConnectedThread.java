@@ -37,6 +37,7 @@ public class ConnectedThread extends Thread{
                 bluetoothSocket.close();//出错就关闭线程吧
             } catch (IOException ex) {}
         }
+
         MainActivity.inputStream=inputTemp;
         MainActivity.outputStream=outputTemp;
     }
@@ -51,7 +52,9 @@ public class ConnectedThread extends Thread{
 
             while (true) {
                 // Read from the input stream
-                bytesRead = bufferedInputStream.read(buffer);
+                synchronized (MainActivity.lock){
+                    bytesRead = bufferedInputStream.read(buffer);
+                }
 
                 if (bytesRead == -1) {
                     break; // End of stream reached
@@ -76,10 +79,6 @@ public class ConnectedThread extends Thread{
                         String gnggaFrame = receivedData.substring(gnggaIndex, gnggaEndIndex);
                         String string = new String(gnggaFrame.getBytes());
 
-//                        // Lock this block to ensure thread safety
-//                        synchronized (BluetoothFunActivity.class) {
-//                            BluetoothFunActivity.ReadGGAString = string;
-//                        }
 
                         MainActivity.setReadGGAString(string);
 
@@ -96,10 +95,6 @@ public class ConnectedThread extends Thread{
                         String gnrmcFrame = receivedData.substring(gnrmcIndex, gnrmcEndIndex);
                         String string = new String(gnrmcFrame.getBytes());
 
-//                        // Lock this block to ensure thread safety
-//                        synchronized (BluetoothFunActivity.class) {
-//                            BluetoothFunActivity.ReadRMCString = string;
-//                        }
 
                         MainActivity.setReadRMCString(string);
 

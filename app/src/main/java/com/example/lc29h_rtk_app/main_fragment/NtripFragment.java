@@ -1,5 +1,6 @@
 package com.example.lc29h_rtk_app.main_fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,8 +8,13 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+import com.example.lc29h_rtk_app.SocketService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,6 +27,12 @@ public class NtripFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+
+    Button connectButton;
+    Button sendButton;
+    Button sendggaButton;
+    TextView showGGA;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -57,10 +69,64 @@ public class NtripFragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_ntrip, container, false);
+        View view = inflater.inflate(R.layout.fragment_ntrip, container, false);
+
+        connectButton = view.findViewById(R.id.connectButton);
+        sendButton = view.findViewById(R.id.sendButton);
+        sendggaButton = view.findViewById(R.id.sendggaButton);
+        showGGA = view.findViewById(R.id.showGGA);
+
+        connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String ipAddress = "120.253.239.161";
+                String portString = "8002";
+                if (ipAddress.isEmpty() || portString.isEmpty()) {
+                    MainActivity.showToast(getActivity(),"请输入IP地址");
+                } else {
+                    int portNumber = Integer.parseInt(portString);
+                    if (MainActivity.isBound) {
+                        MainActivity.socketService.connectToServer(ipAddress, portNumber);
+                    }
+                }
+            }
+        });
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = "GET /" +
+                        "RTCM33_GRCEpro" +
+                        " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+                        "Y2VkcjIxNTEzOmZ5eDY5NzQ2" +
+                        "\r\n\r\n";
+
+                if (MainActivity.isBound) {
+                    MainActivity.socketService.sendMessage(message);
+                }
+            }
+        });
+
+        sendggaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = MainActivity.getReadGGAString() + "\r\n";
+
+                showGGA.setText(message);
+
+                if (MainActivity.isBound) {
+                    MainActivity.socketService.sendMessage(message);
+                }
+            }
+        });
+
+
+
+        return view;
     }
 }
