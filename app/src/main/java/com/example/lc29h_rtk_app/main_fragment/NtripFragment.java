@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,6 @@ import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
-import com.example.lc29h_rtk_app.SocketService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,11 +29,11 @@ public class NtripFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-
     Button connectButton;
     Button sendButton;
     Button sendggaButton;
     TextView showGGA;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -67,6 +68,8 @@ public class NtripFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @SuppressLint("MissingInflatedId")
@@ -87,7 +90,7 @@ public class NtripFragment extends Fragment {
                 String ipAddress = "120.253.239.161";
                 String portString = "8002";
                 if (ipAddress.isEmpty() || portString.isEmpty()) {
-                    MainActivity.showToast(getActivity(),"请输入IP地址");
+                    MainActivity.showToast(getActivity(), "请输入IP地址");
                 } else {
                     int portNumber = Integer.parseInt(portString);
                     if (MainActivity.isBound) {
@@ -125,8 +128,16 @@ public class NtripFragment extends Fragment {
             }
         });
 
-
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 }

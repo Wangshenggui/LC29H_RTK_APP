@@ -138,6 +138,27 @@ public class Bluetooth_top1Fragment extends Fragment {
                             return;
                         }
                         Toast.makeText(getActivity(), "已连接" + readyDevices.get(position).getName() + "\r\n开启数据线程", Toast.LENGTH_SHORT).show();
+
+                        connectedThread.btWriteString("$PAIR062,3,0*3D\r\n");
+                        connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
+                        connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
+                        connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
+
+                        connectedThread.btWriteString("$PAIR062,3,0*3D\r\n");
+                        connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
+                        connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
+                        connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
+
+                        connectedThread.btWriteString("$PAIR062,3,0*3D\r\n");
+                        connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
+                        connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
+                        connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
+
+                        connectedThread.btWriteString("$PAIR062,3,0*3D\r\n");
+                        connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
+                        connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
+                        connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
+
                         break;
                     }
                     delayCount++;
