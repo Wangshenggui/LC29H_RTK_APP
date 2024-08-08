@@ -12,10 +12,10 @@ import com.example.lc29h_rtk_app.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link main_top2Fragment#newInstance} factory method to
+ * Use the {@link Bluetooth_top1Fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class main_top2Fragment extends Fragment {
+public class Bluetooth_top1Fragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +26,7 @@ public class main_top2Fragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public main_top2Fragment() {
+    public Bluetooth_top1Fragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +36,11 @@ public class main_top2Fragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment main_top2Fragment.
+     * @return A new instance of fragment main_top1Fragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static main_top2Fragment newInstance(String param1, String param2) {
-        main_top2Fragment fragment = new main_top2Fragment();
+    public static Bluetooth_top1Fragment newInstance(String param1, String param2) {
+        Bluetooth_top1Fragment fragment = new Bluetooth_top1Fragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +61,6 @@ public class main_top2Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_main_top2, container, false);
+        return inflater.inflate(R.layout.fragment_bluetooth_top1, container, false);
     }
 }

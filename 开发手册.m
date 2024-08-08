@@ -7,3 +7,6 @@ b1创建主活动Fragment
 	创建了NtripFragment，并且可以在两个Fragment任意切换
 	添加了主题颜色为紫色
 	在主Fragment上添加了topFragment
+
+b2蓝牙配置界面
+	修改一些文件名

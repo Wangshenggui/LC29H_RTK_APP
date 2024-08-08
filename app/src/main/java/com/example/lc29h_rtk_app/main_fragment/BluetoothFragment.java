@@ -13,17 +13,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.lc29h_rtk_app.R;
-import com.example.lc29h_rtk_app.main_fragment.main_topfragment.main_top1Fragment;
-import com.example.lc29h_rtk_app.main_fragment.main_topfragment.main_top2Fragment;
+import com.example.lc29h_rtk_app.main_fragment.main_topfragment.Bluetooth_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.main_topfragment.Bluetooth_top2Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MainFragment#newInstance} factory method to
+ * Use the {@link BluetoothFragment#newInstance} factory method to
  * create an instance of this fragment.
  *
  */
-public class MainFragment extends Fragment {
+public class BluetoothFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -48,8 +48,8 @@ public class MainFragment extends Fragment {
      * @return A new instance of fragment MainFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static MainFragment newInstance(String param1, String param2) {
-        MainFragment fragment = new MainFragment();
+    public static BluetoothFragment newInstance(String param1, String param2) {
+        BluetoothFragment fragment = new BluetoothFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -57,7 +57,7 @@ public class MainFragment extends Fragment {
         return fragment;
     }
 
-    public MainFragment() {
+    public BluetoothFragment() {
         // Required empty public constructor
     }
 
@@ -74,7 +74,7 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_bluetooth, container, false);
 
         // Initialize BottomNavigationView
         mNavigationView = view.findViewById(R.id.main_top_navigation_bar);
@@ -91,11 +91,11 @@ public class MainFragment extends Fragment {
 
     // Initialize and add the fragments to the FragmentManager
     private void initFragment() {
-        main_top1Fragment mmain_top1Fragment = new main_top1Fragment();
-        main_top2Fragment mmain_top2Fragment = new main_top2Fragment();
+        Bluetooth_top1Fragment mBluetooth_top1Fragment = new Bluetooth_top1Fragment();
+        Bluetooth_top2Fragment mBluetooth_top2Fragment = new Bluetooth_top2Fragment();
 
         // Store fragments in an array
-        fragments = new Fragment[]{mmain_top1Fragment, mmain_top2Fragment};
+        fragments = new Fragment[]{mBluetooth_top1Fragment, mBluetooth_top2Fragment};
 
         // Get the FragmentManager
         mFragmentManager = getChildFragmentManager();
@@ -103,8 +103,8 @@ public class MainFragment extends Fragment {
         // Show the first fragment by default
         lastFragment = 0;
         mFragmentManager.beginTransaction()
-                .replace(R.id.main_top_page_controller, mmain_top1Fragment)
-                .show(mmain_top1Fragment)
+                .replace(R.id.main_top_page_controller, mBluetooth_top1Fragment)
+                .show(mBluetooth_top1Fragment)
                 .commit();
     }
 

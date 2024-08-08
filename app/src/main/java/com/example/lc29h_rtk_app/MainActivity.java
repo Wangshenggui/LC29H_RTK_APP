@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.lc29h_rtk_app.main_fragment.MainFragment;
+import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -40,15 +40,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFragment() {
-        MainFragment mMainFragment = new MainFragment();
+        BluetoothFragment mBluetoothFragment = new BluetoothFragment();
         NtripFragment mNtripFragment = new NtripFragment();
-        fragments = new Fragment[]{mMainFragment, mNtripFragment};
+        fragments = new Fragment[]{mBluetoothFragment, mNtripFragment};
         mFragmentManager = getSupportFragmentManager();
         // 默认显示HomeFragment
         lastFragment = 0;
         mFragmentManager.beginTransaction()
-                .replace(R.id.main_page_controller, mMainFragment)
-                .show(mMainFragment)
+                .replace(R.id.main_page_controller, mBluetoothFragment)
+                .show(mBluetoothFragment)
                 .commit();
     }
     private void initListener() {
