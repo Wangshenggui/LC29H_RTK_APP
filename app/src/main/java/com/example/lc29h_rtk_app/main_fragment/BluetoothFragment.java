@@ -114,13 +114,13 @@ public class BluetoothFragment extends Fragment {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int i = item.getItemId();
-                if (i == R.id.top1) {
+                if (i == R.id.top1_1) {
                     if (lastFragment != 0) {
                         switchFragment(lastFragment, 0);
                         lastFragment = 0;
                     }
                     return true;
-                } else if (i == R.id.top2) {
+                } else if (i == R.id.top1_2) {
                     if (lastFragment != 1) {
                         switchFragment(lastFragment, 1);
                         lastFragment = 1;

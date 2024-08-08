@@ -1,8 +1,10 @@
 package com.example.lc29h_rtk_app;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -18,7 +20,49 @@ import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class MainActivity extends AppCompatActivity {
+
+    public static OutputStream outputStream=null;//获取输出数据
+    public static InputStream inputStream=null;//获取输入数据
+
+    public static String ReadGGSString=" ";
+    public static String ReadRMCString=" ";
+
+    private static final Object lock = new Object();
+    // 定义一个静态的Toast对象
+    private static Toast toast;
+
+    // 获取 ReadGGSString
+    public static String getReadGGAString() {
+        synchronized (lock) {
+            return ReadGGSString;
+        }
+    }
+
+    // 设置 ReadGGSString
+    public static void setReadGGAString(String newString) {
+        synchronized (lock) {
+            ReadGGSString = newString;
+        }
+    }
+
+    // 获取 ReadRMCString
+    public static String getReadRMCString() {
+        synchronized (lock) {
+            return ReadRMCString;
+        }
+    }
+
+    // 设置 ReadRMCString
+    public static void setReadRMCString(String newString) {
+        synchronized (lock) {
+            ReadRMCString = newString;
+        }
+    }
+
 
     private BottomNavigationView mNavigationView;
     private FragmentManager mFragmentManager;
@@ -56,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int i = item.getItemId();
-                if (i == R.id.Home) {
+                if (i == R.id.Bluetooth) {
                     if (lastFragment != 0) {
                         switchFragment(lastFragment, 0);
                         lastFragment = 0;
@@ -90,5 +134,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         transaction.commitAllowingStateLoss();
+    }
+
+    // 在需要显示Toast消息的地方调用这个方法
+    public static void showToast(Context context, String message) {
+        // 如果toast不为null，则取消当前Toast
+        if (toast != null) {
+            toast.cancel();
+        }
+
+        // 创建新的Toast实例
+        toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+        toast.show();
     }
 }
