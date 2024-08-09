@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:hint="输入IP地址"
         android:inputType="text"
-        android:text="120.253.239.161"
+        android:text="120.253.226.97"
         android:ems="10" />
 
     <LinearLayout
