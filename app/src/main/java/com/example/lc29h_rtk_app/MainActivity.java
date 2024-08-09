@@ -7,14 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,6 +28,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.lc29h_rtk_app.SocketService;
 import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
+import com.example.lc29h_rtk_app.main_fragment.FloatingWidgetService;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -47,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     public static final Object RMC_lock = new Object();
     // 定义一个静态的Toast对象
     private static Toast toast;
+
+    private static final int REQUEST_CODE = 101; // 定义请求码
+
 
     // 获取 ReadGGSString
     public static String getReadGGAString() {
@@ -101,7 +108,43 @@ public class MainActivity extends AppCompatActivity {
         // Delay loading other fragments to avoid crash
         new Handler().postDelayed(this::loadOtherFragments, 500);
 
+
+
+        // 检查是否已经有权限
+        if (!Settings.canDrawOverlays(MainActivity.this)) {
+            // 如果没有权限，则请求用户授权
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQUEST_CODE);
+        }
+
+
+        if (Settings.canDrawOverlays(this)) {
+            startService(new Intent(this, FloatingWidgetService.class));
+        } else {
+            // 请求用户授权
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQUEST_CODE);
+        }
+
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (Settings.canDrawOverlays(this)) {
+                // 用户授予了权限，启动悬浮控件服务
+                startService(new Intent(this, FloatingWidgetService.class));
+            } else {
+                // 用户拒绝了权限，提示用户
+                Toast.makeText(this, "Permission denied. Cannot display floating widget.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     private void initFragment() {
         BluetoothFragment mBluetoothFragment = new BluetoothFragment();
