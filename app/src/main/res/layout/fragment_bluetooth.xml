@@ -10,7 +10,7 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/main_top_navigation_bar"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="30dp"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/main_top_child_fragment"
         app:layout_constraintTop_toTopOf="parent"

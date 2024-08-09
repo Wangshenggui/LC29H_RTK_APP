@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/Bluetooth"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/bluetooth"
         android:title="蓝牙配置"/>
     <item
         android:id="@+id/Ntrip"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/rtknormal"
         android:title="CORS连接"/>
 </menu>
