@@ -34,6 +34,13 @@ public class NtripFragment extends Fragment {
     Button sendggaButton;
     TextView showGGA;
 
+    boolean NtripStartFlag= false;
+
+    // Timer variables
+    private Handler handler;
+    private Runnable timerRunnable;
+    private static final int TIMER_INTERVAL = 1000; // 1 seconds
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -69,7 +76,27 @@ public class NtripFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        // Initialize Handler
+        handler = new Handler(Looper.getMainLooper());
 
+        // Define the task to be run periodically
+        timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // Your periodic task
+                String message = MainActivity.getReadGGAString() + "\r\n";
+                showGGA.setText(message + MainActivity.getReadRMCString());
+
+                if (MainActivity.isBound) {
+                    if(message.length()>50 && NtripStartFlag){
+                        MainActivity.socketService.sendMessage(message);
+                    }
+                }
+
+                // Repeat the task every TIMER_INTERVAL milliseconds
+                handler.postDelayed(this, TIMER_INTERVAL);
+            }
+        };
     }
 
     @SuppressLint("MissingInflatedId")
@@ -125,6 +152,8 @@ public class NtripFragment extends Fragment {
                 if (MainActivity.isBound) {
                     MainActivity.socketService.sendMessage(message);
                 }
+
+                NtripStartFlag=!NtripStartFlag;
             }
         });
 
@@ -134,10 +163,27 @@ public class NtripFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Start the timer when the fragment is resumed
+        startTimer();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        // Stop the timer when the fragment is paused to prevent memory leaks
+        stopTimer();
+    }
+    /**
+     * Start the timer to execute the periodic task.
+     */
+    private void startTimer() {
+        handler.postDelayed(timerRunnable, TIMER_INTERVAL);
+    }
+
+    /**
+     * Stop the timer to prevent further execution.
+     */
+    private void stopTimer() {
+        handler.removeCallbacks(timerRunnable);
     }
 }

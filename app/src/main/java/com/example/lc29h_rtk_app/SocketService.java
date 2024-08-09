@@ -123,23 +123,23 @@ public class SocketService extends Service {
     private void readFromSocket() {
         if (inputStream != null) {
             try {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[2048];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     // Process raw byte data directly
                     byte[] rawMessage = Arrays.copyOf(buffer, bytesRead);
 
                     // Synchronize access to the outputStream
-                    synchronized (MainActivity.class) {
+//                    synchronized (MainActivity.class) {
                         // Example of sending data via Bluetooth to RTK
                         MainActivity.outputStream.write(rawMessage);
                         // Flush the outputStream if necessary
                         MainActivity.outputStream.flush();
-                    }
+//                    }
 
 //                    String message = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
 //                    Log.d(TAG, "收到信息: " + message);
-//                    showToast("收到信息: " + message);
+//                    showToast(" " + bytesRead);
 
                     // Example: Display a Toast with the length of the received raw data
                     // showToast("Received raw data, length: " + rawMessage.length);

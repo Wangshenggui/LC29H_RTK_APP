@@ -41,32 +41,33 @@ public class MainActivity extends AppCompatActivity {
     public static SocketService socketService;
     public static boolean isBound = false;
 
-    public static final Object lock = new Object();
+    public static final Object GGA_lock = new Object();
+    public static final Object RMC_lock = new Object();
     // 定义一个静态的Toast对象
     private static Toast toast;
 
     // 获取 ReadGGSString
     public static String getReadGGAString() {
-        synchronized (lock) {
+        synchronized (GGA_lock) {
             return ReadGGSString;
         }
     }
     // 设置 ReadGGSString
     public static void setReadGGAString(String newString) {
-        synchronized (lock) {
+        synchronized (GGA_lock) {
             ReadGGSString = newString;
         }
     }
 
     // 获取 ReadRMCString
     public static String getReadRMCString() {
-        synchronized (lock) {
+        synchronized (RMC_lock) {
             return ReadRMCString;
         }
     }
     // 设置 ReadRMCString
     public static void setReadRMCString(String newString) {
-        synchronized (lock) {
+        synchronized (RMC_lock) {
             ReadRMCString = newString;
         }
     }

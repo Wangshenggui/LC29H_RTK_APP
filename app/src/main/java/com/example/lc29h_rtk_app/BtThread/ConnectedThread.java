@@ -52,9 +52,7 @@ public class ConnectedThread extends Thread{
 
             while (true) {
                 // Read from the input stream
-                synchronized (MainActivity.lock){
-                    bytesRead = bufferedInputStream.read(buffer);
-                }
+                bytesRead = bufferedInputStream.read(buffer);
 
                 if (bytesRead == -1) {
                     break; // End of stream reached
