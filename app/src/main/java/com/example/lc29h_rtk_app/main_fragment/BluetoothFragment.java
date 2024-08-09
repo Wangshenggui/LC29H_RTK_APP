@@ -12,6 +12,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.lc29h_rtk_app.BtThread.ConnectThread;
+import com.example.lc29h_rtk_app.BtThread.ConnectedThread;
 import com.example.lc29h_rtk_app.R;
 import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment;
@@ -34,6 +37,9 @@ public class BluetoothFragment extends Fragment {
     private FragmentManager mFragmentManager;
     private int lastFragment;
     private Fragment[] fragments;
+
+    public static ConnectThread connectThread;
+    public static ConnectedThread connectedThread;
 
     // TODO: Rename and change types of parameters
     private String mParam1;

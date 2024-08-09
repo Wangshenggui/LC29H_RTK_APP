@@ -10,12 +10,20 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,10 +37,17 @@ public class Ntrip_top1Fragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    Button connectButton;
-    Button sendButton;
+    Button ConnectCORSserverButton;
+    Button SendCORSHTTPButton;
     Button sendggaButton;
     TextView showGGA;
+    EditText CORSip;
+    EditText CORSport;
+    Spinner CORSmount;
+    EditText CORSAccount;
+    EditText CORSPassword;
+
+    String MountPoint=" ";
 
     boolean NtripStartFlag= false;
 
@@ -106,16 +121,21 @@ public class Ntrip_top1Fragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_ntrip_top1, container, false);
 
-        connectButton = view.findViewById(R.id.connectButton);
-        sendButton = view.findViewById(R.id.sendButton);
+        ConnectCORSserverButton = view.findViewById(R.id.ConnectCORSserverButton);
+        SendCORSHTTPButton = view.findViewById(R.id.SendCORSHTTPButton);
         sendggaButton = view.findViewById(R.id.sendggaButton);
         showGGA = view.findViewById(R.id.showGGA);
+        CORSip = view.findViewById(R.id.CORSip);
+        CORSport = view.findViewById(R.id.CORSport);
+        CORSmount = view.findViewById(R.id.CORSmount);
+        CORSAccount = view.findViewById(R.id.CORSAccount);
+        CORSPassword = view.findViewById(R.id.CORSPassword);
 
-        connectButton.setOnClickListener(new View.OnClickListener() {
+        ConnectCORSserverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String ipAddress = "120.253.239.161";
-                String portString = "8002";
+                String ipAddress = CORSip.getText().toString();
+                String portString = CORSport.getText().toString();
                 if (ipAddress.isEmpty() || portString.isEmpty()) {
                     MainActivity.showToast(getActivity(), "请输入IP地址");
                 } else {
@@ -127,13 +147,20 @@ public class Ntrip_top1Fragment extends Fragment {
             }
         });
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
+                // 编码字符串
+                String encodedString = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                }
+
                 String message = "GET /" +
-                        "RTCM33_GRCEpro" +
+                        MountPoint +
                         " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                        "Y2VkcjIxNTEzOmZ5eDY5NzQ2" +
+                        encodedString +
                         "\r\n\r\n";
 
                 if (MainActivity.isBound) {
@@ -157,7 +184,82 @@ public class Ntrip_top1Fragment extends Fragment {
             }
         });
 
+        // 创建一个选项列表（数据源）
+        List<String> categories = new ArrayList<>();
+//        categories.add("选项 1");
+//        categories.add("选项 2");
+//        categories.add("选项 3");
+
+        // 创建一个适配器（Adapter），用于将数据与 Spinner 关联起来
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, categories) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // 获取默认视图
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                // 设置字体大小
+                textView.setTextSize(16); // 根据需要调整字体大小
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                // 获取默认下拉视图
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                // 设置字体大小
+                textView.setTextSize(16); // 根据需要调整字体大小
+                return view;
+            }
+        };
+
+        // 设置下拉列表框的样式
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // 将适配器设置到 Spinner
+        CORSmount.setAdapter(dataAdapter);
+        // 设置 Spinner 的选择监听器
+        CORSmount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // 当用户选择某个选项时触发
+                String item = parent.getItemAtPosition(position).toString();
+                MountPoint = item;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // 当没有选项被选择时触发
+
+            }
+        });
+
+        // 根据 Port 的值更新 Spinner 的选项内容
+        updateSpinnerOptions();
+
         return view;
+    }
+
+    // 更新 Spinner 的选项内容方法
+    private void updateSpinnerOptions() {
+        // 根据 Port 的值选择合适的数据源
+        List<String> currentCategories = new ArrayList<>();
+
+        currentCategories.add("RTCM33_GRCEpro");//9
+        currentCategories.add("RTCM33_GRCEJ");//5
+        currentCategories.add("RTCM33_GRCE");//6
+        currentCategories.add("RTCM33_GRC");//7
+        currentCategories.add("RTCM30_GR");//8
+        currentCategories.add("RTCM32_GGB");//10
+        currentCategories.add("RTCM30_GG");//11
+
+        // 更新适配器的数据源，并通知适配器数据已改变
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) CORSmount.getAdapter();
+        adapter.clear();
+        adapter.addAll(currentCategories);
+        adapter.notifyDataSetChanged();
+
+        // 选择数据源之后默认选中第一个
+        CORSmount.setSelection(0);
     }
 
     @Override

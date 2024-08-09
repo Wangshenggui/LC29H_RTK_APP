@@ -3,18 +3,78 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".main_fragment.ntrip_topfragment.Ntrip_top1Fragment">
 
-    <Button
-        android:id="@+id/connectButton"
-        android:text="连接TCP"
-        android:layout_width="wrap_content"
+    <TextView
+        android:text="\n服务器连接\n"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <EditText
+        android:id="@+id/CORSip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入IP地址"
+        android:inputType="text"
+        android:text="120.253.239.161"
+        android:ems="10" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <EditText
+            android:id="@+id/CORSport"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="输入端口号"
+            android:inputType="number"
+            android:text="8002"
+            android:layout_weight="1"
+            android:ems="10" />
+
+        <Button
+            android:id="@+id/ConnectCORSserverButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="连接CORS服务器"
+            android:ems="10"/>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/CORSAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入账号"
+        android:inputType="text"
+        android:text="cedr21513"
+        android:ems="10" />
+
+    <EditText
+        android:id="@+id/CORSPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入密码"
+        android:inputType="text"
+        android:text="fyx69746"
+        android:ems="10" />
+
+    <Spinner
+        android:id="@+id/CORSmount"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.018"/>
+
     <Button
-        android:id="@+id/sendButton"
-        android:text="发送数据连接"
+        android:id="@+id/SendCORSHTTPButton"
+        android:text="发送HTTP请求"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

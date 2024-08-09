@@ -1,5 +1,6 @@
 package com.example.lc29h_rtk_app;
 
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,6 +26,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.lc29h_rtk_app.SocketService;
 import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.InputStream;
@@ -206,5 +208,9 @@ public class MainActivity extends AppCompatActivity {
             isBound = false;
         }
         unregisterReceiver(messageReceiver);
+
+        // 软件退出后清空，断开蓝牙操作
+        BluetoothFragment.connectThread.cancel();
+        BluetoothFragment.connectedThread.cancel();
     }
 }

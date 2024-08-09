@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 
 import com.example.lc29h_rtk_app.MainActivity;
-import com.example.lc29h_rtk_app.main_fragment.main_topfragment.Bluetooth_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
