@@ -8,21 +8,21 @@
     tools:context=".main_fragment.BluetoothFragment">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/main_top_navigation_bar"
+        android:id="@+id/main_bluetooth_top_navigation_bar"
         android:layout_width="0dp"
         android:layout_height="30dp"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/main_top_child_fragment"
+        app:menu="@menu/main_bluetooth_top_child_fragment"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <FrameLayout
-        android:id="@+id/main_top_page_controller"
+        android:id="@+id/main_bluetooth_top_page_controller"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#EFEEEE"
-        app:layout_constraintTop_toBottomOf="@id/main_top_navigation_bar"
+        app:layout_constraintTop_toBottomOf="@id/main_bluetooth_top_navigation_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

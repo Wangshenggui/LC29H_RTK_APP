@@ -1,4 +1,4 @@
-package com.example.lc29h_rtk_app.main_fragment.main_topfragment;
+package com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment;
 
 import static com.example.lc29h_rtk_app.BtThread.ConnectThread.bluetoothSocket;
 

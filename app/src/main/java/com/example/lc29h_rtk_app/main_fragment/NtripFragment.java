@@ -1,26 +1,29 @@
 package com.example.lc29h_rtk_app.main_fragment;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment;
+import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top2Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link NtripFragment#newInstance} factory method to
  * create an instance of this fragment.
+ *
  */
 public class NtripFragment extends Fragment {
 
@@ -29,26 +32,14 @@ public class NtripFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    Button connectButton;
-    Button sendButton;
-    Button sendggaButton;
-    TextView showGGA;
-
-    boolean NtripStartFlag= false;
-
-    // Timer variables
-    private Handler handler;
-    private Runnable timerRunnable;
-    private static final int TIMER_INTERVAL = 1000; // 1 seconds
-
+    private BottomNavigationView mNavigationView;
+    private FragmentManager mFragmentManager;
+    private int lastFragment;
+    private Fragment[] fragments;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
-    public NtripFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of
@@ -56,16 +47,20 @@ public class NtripFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment NtripFragment.
+     * @return A new instance of fragment MainFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static NtripFragment newInstance(String param1, String param2) {
-        NtripFragment fragment = new NtripFragment();
+    public static BluetoothFragment newInstance(String param1, String param2) {
+        BluetoothFragment fragment = new BluetoothFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public NtripFragment() {
+        // Required empty public constructor
     }
 
     @Override
@@ -75,115 +70,89 @@ public class NtripFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        // Initialize Handler
-        handler = new Handler(Looper.getMainLooper());
-
-        // Define the task to be run periodically
-        timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // Your periodic task
-                String message = MainActivity.getReadGGAString() + "\r\n";
-                showGGA.setText(message + MainActivity.getReadRMCString());
-
-                if (MainActivity.isBound) {
-                    if(message.length()>50 && NtripStartFlag){
-                        MainActivity.socketService.sendMessage(message);
-                    }
-                }
-
-                // Repeat the task every TIMER_INTERVAL milliseconds
-                handler.postDelayed(this, TIMER_INTERVAL);
-            }
-        };
     }
 
-    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_ntrip, container, false);
 
-        connectButton = view.findViewById(R.id.connectButton);
-        sendButton = view.findViewById(R.id.sendButton);
-        sendggaButton = view.findViewById(R.id.sendggaButton);
-        showGGA = view.findViewById(R.id.showGGA);
+        // Initialize BottomNavigationView
+        mNavigationView = view.findViewById(R.id.main_ntrip_top_navigation_bar);
 
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String ipAddress = "120.253.239.161";
-                String portString = "8002";
-                if (ipAddress.isEmpty() || portString.isEmpty()) {
-                    MainActivity.showToast(getActivity(), "请输入IP地址");
-                } else {
-                    int portNumber = Integer.parseInt(portString);
-                    if (MainActivity.isBound) {
-                        MainActivity.socketService.connectToServer(ipAddress, portNumber);
-                    }
-                }
-            }
-        });
+        // Initialize fragments and listeners
+        initFragment();
+        initListener();
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = "GET /" +
-                        "RTCM33_GRCEpro" +
-                        " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                        "Y2VkcjIxNTEzOmZ5eDY5NzQ2" +
-                        "\r\n\r\n";
-
-                if (MainActivity.isBound) {
-                    MainActivity.socketService.sendMessage(message);
-                }
-            }
-        });
-
-        sendggaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = MainActivity.getReadGGAString() + "\r\n";
-
-                showGGA.setText(message);
-
-                if (MainActivity.isBound) {
-                    MainActivity.socketService.sendMessage(message);
-                }
-
-                NtripStartFlag=!NtripStartFlag;
-            }
-        });
+        // Delay loading other fragments to avoid crash
+        new Handler().postDelayed(this::loadOtherFragments, 500);
 
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Start the timer when the fragment is resumed
-        startTimer();
+    // Initialize and add the fragments to the FragmentManager
+    private void initFragment() {
+        Ntrip_top1Fragment mNtrip_top1Fragment = new Ntrip_top1Fragment();
+        Ntrip_top2Fragment mNtrip_top2Fragment = new Ntrip_top2Fragment();
+
+        // Store fragments in an array
+        fragments = new Fragment[]{mNtrip_top1Fragment, mNtrip_top2Fragment};
+
+        // Get the FragmentManager
+        mFragmentManager = getChildFragmentManager();
+
+        // Show the first fragment by default
+        lastFragment = 0;
+        mFragmentManager.beginTransaction()
+                .replace(R.id.main_ntrip_top_page_controller, mNtrip_top1Fragment)
+                .show(mNtrip_top1Fragment)
+                .commit();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Stop the timer when the fragment is paused to prevent memory leaks
-        stopTimer();
-    }
-    /**
-     * Start the timer to execute the periodic task.
-     */
-    private void startTimer() {
-        handler.postDelayed(timerRunnable, TIMER_INTERVAL);
+    // Initialize the BottomNavigationView listener
+    private void initListener() {
+        mNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int i = item.getItemId();
+                if (i == R.id.ntrip_top1) {
+                    if (lastFragment != 0) {
+                        switchFragment(lastFragment, 0);
+                        lastFragment = 0;
+                    }
+                    return true;
+                } else if (i == R.id.ntrip_top2) {
+                    if (lastFragment != 1) {
+                        switchFragment(lastFragment, 1);
+                        lastFragment = 1;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
-    /**
-     * Stop the timer to prevent further execution.
-     */
-    private void stopTimer() {
-        handler.removeCallbacks(timerRunnable);
+    // Switch between fragments
+    private void switchFragment(int lastFragment, int index) {
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        transaction.hide(fragments[lastFragment]);
+        if (!fragments[index].isAdded()) {
+            transaction.add(R.id.main_ntrip_top_page_controller, fragments[index]);
+        }
+        transaction.show(fragments[index]).commitAllowingStateLoss();
+    }
+
+    // Load other fragments and hide them
+    private void loadOtherFragments() {
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        for (int i = 1; i < fragments.length; i++) {
+            if (!fragments[i].isAdded()) {
+                transaction.add(R.id.main_ntrip_top_page_controller, fragments[i]);
+                transaction.hide(fragments[i]);
+            }
+        }
+        transaction.commitAllowingStateLoss();
     }
 }

@@ -13,8 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.example.lc29h_rtk_app.R;
-import com.example.lc29h_rtk_app.main_fragment.main_topfragment.Bluetooth_top1Fragment;
-import com.example.lc29h_rtk_app.main_fragment.main_topfragment.Bluetooth_top2Fragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
@@ -77,7 +77,7 @@ public class BluetoothFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_bluetooth, container, false);
 
         // Initialize BottomNavigationView
-        mNavigationView = view.findViewById(R.id.main_top_navigation_bar);
+        mNavigationView = view.findViewById(R.id.main_bluetooth_top_navigation_bar);
 
         // Initialize fragments and listeners
         initFragment();
@@ -103,7 +103,7 @@ public class BluetoothFragment extends Fragment {
         // Show the first fragment by default
         lastFragment = 0;
         mFragmentManager.beginTransaction()
-                .replace(R.id.main_top_page_controller, mBluetooth_top1Fragment)
+                .replace(R.id.main_bluetooth_top_page_controller, mBluetooth_top1Fragment)
                 .show(mBluetooth_top1Fragment)
                 .commit();
     }
@@ -114,13 +114,13 @@ public class BluetoothFragment extends Fragment {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int i = item.getItemId();
-                if (i == R.id.top1_1) {
+                if (i == R.id.bluetooth_top1) {
                     if (lastFragment != 0) {
                         switchFragment(lastFragment, 0);
                         lastFragment = 0;
                     }
                     return true;
-                } else if (i == R.id.top1_2) {
+                } else if (i == R.id.bluetooth_top2) {
                     if (lastFragment != 1) {
                         switchFragment(lastFragment, 1);
                         lastFragment = 1;
@@ -137,7 +137,7 @@ public class BluetoothFragment extends Fragment {
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
         transaction.hide(fragments[lastFragment]);
         if (!fragments[index].isAdded()) {
-            transaction.add(R.id.main_top_page_controller, fragments[index]);
+            transaction.add(R.id.main_bluetooth_top_page_controller, fragments[index]);
         }
         transaction.show(fragments[index]).commitAllowingStateLoss();
     }
@@ -147,7 +147,7 @@ public class BluetoothFragment extends Fragment {
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
         for (int i = 1; i < fragments.length; i++) {
             if (!fragments[i].isAdded()) {
-                transaction.add(R.id.main_top_page_controller, fragments[i]);
+                transaction.add(R.id.main_bluetooth_top_page_controller, fragments[i]);
                 transaction.hide(fragments[i]);
             }
         }
