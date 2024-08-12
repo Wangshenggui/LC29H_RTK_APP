@@ -1,18 +1,22 @@
 package com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,6 +25,12 @@ import android.widget.Toast;
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -46,6 +56,7 @@ public class Ntrip_top1Fragment extends Fragment {
     Spinner CORSmount;
     EditText CORSAccount;
     EditText CORSPassword;
+    CheckBox RememberTheServerIP;
 
     String MountPoint=" ";
 
@@ -130,6 +141,26 @@ public class Ntrip_top1Fragment extends Fragment {
         CORSmount = view.findViewById(R.id.CORSmount);
         CORSAccount = view.findViewById(R.id.CORSAccount);
         CORSPassword = view.findViewById(R.id.CORSPassword);
+        RememberTheServerIP = view.findViewById(R.id.RememberTheServerIP);
+
+        RememberTheServerIP.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean isCheck = RememberTheServerIP.isChecked();
+                String sIP = CORSip.getText().toString().trim();
+                String sPort = CORSport.getText().toString().trim();
+
+                if(isCheck){
+                    if(TextUtils.isEmpty(sIP) || TextUtils.isEmpty(sPort)){
+                        readFillIPportFile("RememberTheServerIPFile" + ".csv");
+                    }else{
+                        writeFileIPport("RememberTheServerIPFile" + ".csv", CORSip.getText().toString(),CORSport.getText().toString());
+                    }
+                }else {
+                    readFillIPportFile("RememberTheServerIPFile" + ".csv");
+                }
+            }
+        });
 
         ConnectCORSserverButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -260,6 +291,66 @@ public class Ntrip_top1Fragment extends Fragment {
 
         // 选择数据源之后默认选中第一个
         CORSmount.setSelection(0);
+    }
+
+    private void writeFileIPport(String filename, String ip,String port) {
+        StringBuilder Data = new StringBuilder();
+
+        Data.append(ip).append(":").append(port);
+
+        FileOutputStream fos = null;
+        try {
+            fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(Data.toString().getBytes());
+            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void readFillIPportFile(String fileName) {
+        FileInputStream fis = null;
+        try {
+            fis = getActivity().openFileInput(fileName);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            String[] strarray=fileContents.split("[:]");
+            MainActivity.showToast(getActivity(),strarray[0] + strarray[1]);
+
+            CORSip.setText(strarray[0]);
+            CORSport.setText(strarray[1]);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
