@@ -30,6 +30,7 @@ import com.example.lc29h_rtk_app.SocketService;
 import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.FloatingWidgetService;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
+import com.example.lc29h_rtk_app.main_fragment.WebFragment;
 import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -216,7 +217,8 @@ public class MainActivity extends AppCompatActivity {
     private void initFragment() {
         BluetoothFragment mBluetoothFragment = new BluetoothFragment();
         NtripFragment mNtripFragment = new NtripFragment();
-        fragments = new Fragment[]{mBluetoothFragment, mNtripFragment};
+        WebFragment mWebFragment = new WebFragment();
+        fragments = new Fragment[]{mBluetoothFragment, mNtripFragment, mWebFragment};
         mFragmentManager = getSupportFragmentManager();
         // 默认显示HomeFragment
         lastFragment = 0;
@@ -240,6 +242,12 @@ public class MainActivity extends AppCompatActivity {
                     if (lastFragment != 1) {
                         switchFragment(lastFragment, 1);
                         lastFragment = 1;
+                    }
+                    return true;
+                } else if (i == R.id.Web) {
+                    if (lastFragment != 2) {
+                        switchFragment(lastFragment, 2);
+                        lastFragment = 2;
                     }
                     return true;
                 }

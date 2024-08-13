@@ -8,4 +8,8 @@
         android:id="@+id/Ntrip"
         android:icon="@drawable/rtknormal"
         android:title="CORS连接"/>
+    <item
+        android:id="@+id/Web"
+        android:icon="@drawable/webicon"
+        android:title="Web连接"/>
 </menu>
