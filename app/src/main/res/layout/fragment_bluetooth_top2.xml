@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".main_fragment.main_topfragment.Bluetooth_top2Fragment">
+    tools:context=".main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment">
 
     <TextView
+        android:id="@+id/text_view_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="草泥马2"
@@ -15,5 +17,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/gga_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GGA Data"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_placeholder" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/rmc_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RMC Data"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gga_text_view" />
+
+
+</LinearLayout>
