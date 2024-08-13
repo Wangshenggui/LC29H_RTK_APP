@@ -429,21 +429,25 @@ public class Ntrip_top1Fragment extends Fragment {
         SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
-                // 编码字符串
-                String encodedString = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-                }
+                if(MainActivity.getBluetoothConFlag()){
+                    String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
+                    // 编码字符串
+                    String encodedString = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                    }
 
-                String message = "GET /" +
-                        MountPoint +
-                        " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                        encodedString +
-                        "\r\n\r\n";
+                    String message = "GET /" +
+                            MountPoint +
+                            " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+                            encodedString +
+                            "\r\n\r\n";
 
-                if (MainActivity.isBound) {
-                    MainActivity.socketService.sendMessage(message);
+                    if (MainActivity.isBound) {
+                        MainActivity.socketService.sendMessage(message);
+                    }
+                }else{
+                    MainActivity.showToast(getActivity(),"蓝牙未连接");
                 }
             }
         });

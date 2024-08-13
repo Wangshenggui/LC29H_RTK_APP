@@ -43,17 +43,30 @@ public class MainActivity extends AppCompatActivity {
 
     public static String ReadGGSString=" ";
     public static String ReadRMCString=" ";
+    public static boolean BluetoothConFlag=false;
 
     public static SocketService socketService;
     public static boolean isBound = false;
 
     public static final Object GGA_lock = new Object();
     public static final Object RMC_lock = new Object();
+    public static final Object BluetoothCon_lock = new Object();
     // 定义一个静态的Toast对象
     private static Toast toast;
 
     private static final int REQUEST_CODE = 101; // 定义请求码
 
+
+    public static boolean getBluetoothConFlag() {
+        synchronized (BluetoothCon_lock) {
+            return BluetoothConFlag;
+        }
+    }
+    public static void setBluetoothConFlag(boolean flag) {
+        synchronized (BluetoothCon_lock) {
+            BluetoothConFlag = flag;
+        }
+    }
 
     // 获取 ReadGGSString
     public static String getReadGGAString() {
