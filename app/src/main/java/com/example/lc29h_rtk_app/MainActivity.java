@@ -166,6 +166,10 @@ public class MainActivity extends AppCompatActivity {
         Intent SocketserviceIntent = new Intent(this, SocketService.class);
         startService(SocketserviceIntent);
 
+        // 启动WebSocket服务
+        Intent serviceIntent = new Intent(this, WebSocketService.class);
+        startService(serviceIntent);
+
 
 
         mNavigationView = findViewById(R.id.main_navigation_bar);

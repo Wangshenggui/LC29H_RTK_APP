@@ -37,4 +37,8 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+
+    // 删除重复的 OkHttp 依赖，只保留最新版本
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 }
