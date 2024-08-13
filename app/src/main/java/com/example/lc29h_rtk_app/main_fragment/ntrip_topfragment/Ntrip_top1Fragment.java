@@ -26,6 +26,7 @@ import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,6 +35,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedWriter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,6 +63,9 @@ public class Ntrip_top1Fragment extends Fragment {
     EditText CORSAccount;
     EditText CORSPassword;
     CheckBox RememberTheServerIP;
+    CheckBox RememberTheCORSInformation;
+
+    int[] RemPassFlag = new int[2];
 
     String MountPoint=" ";
 
@@ -142,22 +151,261 @@ public class Ntrip_top1Fragment extends Fragment {
         CORSAccount = view.findViewById(R.id.CORSAccount);
         CORSPassword = view.findViewById(R.id.CORSPassword);
         RememberTheServerIP = view.findViewById(R.id.RememberTheServerIP);
+        RememberTheCORSInformation = view.findViewById(R.id.RememberTheCORSInformation);
+
+
+        RemPassFlag[0]=0;
+
+        // 文件名
+        String fileName = "RememberTheServerIPFile";
+        // 获取应用的文件目录
+        File file = new File(getActivity().getFilesDir(), fileName);
+
+        if (!file.exists()) {
+            // 文件不存在，创建并写入内容
+            try {
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write("1:1");  // 写入文本内容
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 文件存在，检查是否为空
+            if (file.length() == 0) {
+                // 文件为空，写入内容
+                try {
+                    FileWriter writer = new FileWriter(file);
+                    writer.write("1:1");  // 写入文本内容
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 文件不为空，执行其他操作或不操作
+//                Toast.makeText(getActivity(), "File already contains content", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // 文件名
+        fileName = "RememberTheCORSInformationFile";
+        // 获取应用的文件目录
+        file = new File(getActivity().getFilesDir(), fileName);
+
+        if (!file.exists()) {
+            // 文件不存在，创建并写入内容
+            try {
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write("1:1");  // 写入文本内容
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 文件存在，检查是否为空
+            if (file.length() == 0) {
+                // 文件为空，写入内容
+                try {
+                    FileWriter writer = new FileWriter(file);
+                    writer.write("1:1");  // 写入文本内容
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 文件不为空，执行其他操作或不操作
+//                Toast.makeText(getActivity(), "File already contains content", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+
+        FileInputStream fis = null;
+        try {
+            fis = getActivity().openFileInput("RememberFlag1");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            if(fileContents.equals("1")){
+                RememberTheServerIP.setChecked(true);
+                readFillIPportFile("RememberTheServerIPFile" + ".csv",1);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        fis = null;
+        try {
+            fis = getActivity().openFileInput("RememberFlag2");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            if(fileContents.equals("1")){
+                RememberTheCORSInformation.setChecked(true);
+                readFillIPportFile("RememberTheCORSInformationFile" + ".csv",2);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         RememberTheServerIP.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolean isCheck = RememberTheServerIP.isChecked();
+                boolean isCheck1 = RememberTheServerIP.isChecked();
+
                 String sIP = CORSip.getText().toString().trim();
                 String sPort = CORSport.getText().toString().trim();
 
-                if(isCheck){
+                if(isCheck1){
                     if(TextUtils.isEmpty(sIP) || TextUtils.isEmpty(sPort)){
-                        readFillIPportFile("RememberTheServerIPFile" + ".csv");
+
                     }else{
+                        StringBuilder Data = new StringBuilder();
+                        Data.append("1");
+                        FileOutputStream fos = null;
+                        try {
+                            fos = getActivity().openFileOutput("RememberFlag1", Context.MODE_PRIVATE);
+                            fos.write(Data.toString().getBytes());
+                            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (fos != null) {
+                                    fos.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         writeFileIPport("RememberTheServerIPFile" + ".csv", CORSip.getText().toString(),CORSport.getText().toString());
                     }
                 }else {
-                    readFillIPportFile("RememberTheServerIPFile" + ".csv");
+                    StringBuilder Data = new StringBuilder();
+                    Data.append("0");
+                    FileOutputStream fos = null;
+                    try {
+                        fos = getActivity().openFileOutput("RememberFlag1", Context.MODE_PRIVATE);
+                        fos.write(Data.toString().getBytes());
+                        //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fos != null) {
+                                fos.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        RememberTheCORSInformation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean isCheck = RememberTheCORSInformation.isChecked();
+                String sAccount = CORSAccount.getText().toString().trim();
+                String sPassword = CORSPassword.getText().toString().trim();
+
+                if(isCheck){
+                    if(TextUtils.isEmpty(sAccount) || TextUtils.isEmpty(sPassword)){
+
+                    }else{
+                        StringBuilder Data = new StringBuilder();
+                        Data.append("1");
+                        FileOutputStream fos = null;
+                        try {
+                            fos = getActivity().openFileOutput("RememberFlag2", Context.MODE_PRIVATE);
+                            fos.write(Data.toString().getBytes());
+                            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (fos != null) {
+                                    fos.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        writeFileAccountPassword("RememberTheCORSInformationFile" + ".csv", CORSAccount.getText().toString(),CORSPassword.getText().toString());
+                    }
+                }else {
+                    StringBuilder Data = new StringBuilder();
+                    Data.append("0");
+                    FileOutputStream fos = null;
+                    try {
+                        fos = getActivity().openFileOutput("RememberFlag2", Context.MODE_PRIVATE);
+                        fos.write(Data.toString().getBytes());
+                        //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fos != null) {
+                                fos.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });
@@ -317,7 +565,31 @@ public class Ntrip_top1Fragment extends Fragment {
             }
         }
     }
-    private void readFillIPportFile(String fileName) {
+    private void writeFileAccountPassword(String filename, String Account,String Password) {
+        StringBuilder Data = new StringBuilder();
+
+        Data.append(Account).append(":").append(Password);
+
+        FileOutputStream fos = null;
+        try {
+            fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(Data.toString().getBytes());
+            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void readFillIPportFile(String fileName,int num) {
         FileInputStream fis = null;
         try {
             fis = getActivity().openFileInput(fileName);
@@ -334,10 +606,15 @@ public class Ntrip_top1Fragment extends Fragment {
             // Show the contents in a Toast message
             String fileContents = sb.toString();
             String[] strarray=fileContents.split("[:]");
-            MainActivity.showToast(getActivity(),strarray[0] + strarray[1]);
+//            MainActivity.showToast(getActivity(),strarray[0] + strarray[1]);
 
-            CORSip.setText(strarray[0]);
-            CORSport.setText(strarray[1]);
+            if(num==1){
+                CORSip.setText(strarray[0]);
+                CORSport.setText(strarray[1]);
+            } else if (num==2) {
+                CORSAccount.setText(strarray[0]);
+                CORSPassword.setText(strarray[1]);
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
