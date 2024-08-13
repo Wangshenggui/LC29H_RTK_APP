@@ -126,10 +126,26 @@ public class Ntrip_top1Fragment extends Fragment {
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
+
+
+//                        String str = MainActivity.getReadRMCString();
+//
+//                        // 分割NMEA语句，获取各字段
+//                        String[] fields = str.split(",");
+//
+//                        // 解析纬度
+//                        double latitude = convertToDecimal(fields[3]);
+//                        MainActivity.setnew_lat(latitude);
+//
+//                        // 解析经度
+//                        double longitude = convertToDecimal(fields[5]);
+//                        MainActivity.setnew_lon(longitude);
+//
+//                        double distance=0;
+//                        distance = 1000*linear_distance(MainActivity.getlast_lat(),MainActivity.getlast_lon(),MainActivity.getnew_lat(),MainActivity.getnew_lon());
+//                        DistanceText.setText(String.format("距离: %.4f m", distance));
                     }
                 }
-
-                MainActivity.showToast(getActivity(),""+MainActivity.getnew_lon()+MainActivity.getnew_lat());
 
                 // Repeat the task every TIMER_INTERVAL milliseconds
                 handler.postDelayed(this, TIMER_INTERVAL);
@@ -166,11 +182,11 @@ public class Ntrip_top1Fragment extends Fragment {
 
                 // 解析纬度
                 double latitude = convertToDecimal(fields[2]);
-                MainActivity.setnew_lat(latitude);
+                MainActivity.setlast_lat(latitude);
 
                 // 解析经度
                 double longitude = convertToDecimal(fields[4]);
-                MainActivity.setnew_lon(longitude);
+                MainActivity.setlast_lon(longitude);
             }
         });
 
@@ -651,6 +667,19 @@ public class Ntrip_top1Fragment extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+
+    double linear_distance(double lat1, double lon1, double lat2, double lon2) {
+        double dlat = Math.toRadians(lat2 - lat1);
+        double dlon = Math.toRadians(lon2 - lon1);
+
+
+        // 使用简单的勾股定理计算直线距离
+        double a = Math.sin(dlat / 2) * Math.sin(dlat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dlon / 2) * Math.sin(dlon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = 6371.0 * c;
+
+        return distance;
     }
 
     // 将度和分钟格式转换为十进制格式
