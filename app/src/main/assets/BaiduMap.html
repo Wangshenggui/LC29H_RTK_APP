@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百度地图示例</title>
+    <link rel="stylesheet" href="BaiduMap.css"> <!-- 引入您的CSS文件 -->
+</head>
+<body>
+<!-- 容器，包含地图和按钮 -->
+<div class="map-container">
+    <!-- 地图容器 -->
+    <div id="map"></div>
+    <!-- 按钮 -->
+    <button id="CenterMapButton">居中地图</button>
+    <!-- 按钮 -->
+    <button id="ClearMapButton">清除地图</button>
+</div>
+
+<div class="container">
+    <div class="lonlat-container">
+        <span class="text-lon">经度: 0</span>
+        <span class="text-lat">纬度: 0</span>
+    </div>
+    <div class="speed-container">
+        <span class="text-speedms">速度(m/s): 0</span>
+        <span class="text-speedkmh">速度(km/h): 0</span>
+    </div>
+    <div class="statusHCSDS-container">
+        <span class="text-status">RTK状态: </span>
+        <span class="text-HCSDS">卫星数量: </span>
+    </div>
+    <div class="altitude-container">
+        <span class="text-altitude">海拔高度: </span>
+    </div>
+</div>
+
+<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+<!-- 引入百度地图API JavaScript -->
+<script src="https://api.map.baidu.com/api?v=3.0&ak=d1DPSzE2ISf4yimNuIksZzzJ9ayxdprk"></script>
+<!-- 引入您的自定义JavaScript文件 -->
+<script src="BaiduMap.js" defer></script>
+</body>
+</html>
