@@ -1,5 +1,7 @@
 package com.example.lc29h_rtk_app.main_fragment.web_topFragment;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,8 +12,13 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
+import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,6 +33,7 @@ public class Web_top1Fragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     private WebView webView;
+    Button WebTestButton;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -62,6 +70,7 @@ public class Web_top1Fragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,6 +85,37 @@ public class Web_top1Fragment extends Fragment {
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/BaiduMap.html"); // 载入网页的URL
 
+        WebTestButton = view.findViewById(R.id.WebTestButton);
+
+        WebTestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                JSONObject data = new JSONObject();
+                String[] variables = {"a","b","c"};
+
+                try {
+                    data.put(variables[0], 12);
+                    data.put(variables[1], 34);
+                    data.put(variables[2], 56);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String jsonMessage = data.toString();
+
+                Intent intent = new Intent("SendWebSocketMessage");
+                intent.putExtra("message", jsonMessage);
+                requireContext().sendBroadcast(intent);
+            }
+        });
+
         return view;
+    }
+    private void putToJsonObject(JSONObject jsonObject, String key, Object value) {
+        try {
+            jsonObject.put(key, value);
+        } catch (JSONException e) {
+            throw new RuntimeException("Could not put key '" + key + "' into JSONObject", e);
+        }
     }
 }
