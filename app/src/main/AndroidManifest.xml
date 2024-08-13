@@ -26,10 +26,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <service
-            android:name=".WebSocketService"
-            android:enabled="true"
-            android:exported="true"></service>
-        <service
             android:name=".main_fragment.FloatingWidgetService"
             android:enabled="true"
             android:exported="true"></service>
@@ -53,6 +49,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".WebSocketService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice"
+            tools:ignore="ForegroundServicePermission" />
     </application>
 
 </manifest>
