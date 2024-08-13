@@ -64,8 +64,9 @@ public class Ntrip_top1Fragment extends Fragment {
     EditText CORSPassword;
     CheckBox RememberTheServerIP;
     CheckBox RememberTheCORSInformation;
+    Button RangeReadinessButton;
+    TextView DistanceText;
 
-    int[] RemPassFlag = new int[2];
 
     String MountPoint=" ";
 
@@ -128,6 +129,8 @@ public class Ntrip_top1Fragment extends Fragment {
                     }
                 }
 
+                MainActivity.showToast(getActivity(),""+MainActivity.getnew_lon()+MainActivity.getnew_lat());
+
                 // Repeat the task every TIMER_INTERVAL milliseconds
                 handler.postDelayed(this, TIMER_INTERVAL);
             }
@@ -152,9 +155,25 @@ public class Ntrip_top1Fragment extends Fragment {
         CORSPassword = view.findViewById(R.id.CORSPassword);
         RememberTheServerIP = view.findViewById(R.id.RememberTheServerIP);
         RememberTheCORSInformation = view.findViewById(R.id.RememberTheCORSInformation);
+        RangeReadinessButton = view.findViewById(R.id.RangeReadinessButton);
+        DistanceText = view.findViewById(R.id.DistanceText);
 
+        RangeReadinessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 分割NMEA语句，获取各字段
+                String[] fields = MainActivity.getReadGGAString().split(",");
 
-        RemPassFlag[0]=0;
+                // 解析纬度
+                double latitude = convertToDecimal(fields[2]);
+                MainActivity.setnew_lat(latitude);
+
+                // 解析经度
+                double longitude = convertToDecimal(fields[4]);
+                MainActivity.setnew_lon(longitude);
+            }
+        });
+
 
         // 文件名
         String fileName = "RememberTheServerIPFile";
@@ -632,6 +651,13 @@ public class Ntrip_top1Fragment extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+
+    // 将度和分钟格式转换为十进制格式
+    private static double convertToDecimal(String coordinate) {
+        double degrees = Double.parseDouble(coordinate.substring(0, coordinate.indexOf('.') - 2));
+        double minutes = Double.parseDouble(coordinate.substring(coordinate.indexOf('.') - 2));
+        return degrees + (minutes / 60.0);
     }
 
     @Override

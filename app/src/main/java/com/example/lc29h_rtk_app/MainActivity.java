@@ -45,17 +45,71 @@ public class MainActivity extends AppCompatActivity {
     public static String ReadRMCString=" ";
     public static boolean BluetoothConFlag=false;
 
+    public static double last_lon=106.36;
+    public static double last_lat=26.23;
+    public static double new_lon=0;
+    public static double new_lat=0;
+
     public static SocketService socketService;
     public static boolean isBound = false;
 
     public static final Object GGA_lock = new Object();
     public static final Object RMC_lock = new Object();
     public static final Object BluetoothCon_lock = new Object();
+    public static final Object last_lon_lock = new Object();
+    public static final Object last_lat_lock = new Object();
+    public static final Object new_lon_lock = new Object();
+    public static final Object new_lat_lock = new Object();
     // 定义一个静态的Toast对象
     private static Toast toast;
 
     private static final int REQUEST_CODE = 101; // 定义请求码
 
+
+
+    public static double getlast_lon() {
+        synchronized (last_lon_lock) {
+            return last_lon;
+        }
+    }
+    public static void setlast_lon(double n) {
+        synchronized (last_lon_lock) {
+            last_lon = n;
+        }
+    }
+
+    public static double getlast_lat() {
+        synchronized (last_lat_lock) {
+            return last_lat;
+        }
+    }
+    public static void setlast_lat(double n) {
+        synchronized (last_lat_lock) {
+            last_lat = n;
+        }
+    }
+
+    public static double getnew_lon() {
+        synchronized (new_lon_lock) {
+            return new_lon;
+        }
+    }
+    public static void setnew_lon(double n) {
+        synchronized (new_lon_lock) {
+            new_lon = n;
+        }
+    }
+
+    public static double getnew_lat() {
+        synchronized (new_lat_lock) {
+            return new_lat;
+        }
+    }
+    public static void setnew_lat(double n) {
+        synchronized (new_lat_lock) {
+            new_lat = n;
+        }
+    }
 
     public static boolean getBluetoothConFlag() {
         synchronized (BluetoothCon_lock) {

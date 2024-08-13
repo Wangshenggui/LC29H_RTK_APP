@@ -99,16 +99,38 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/SendCORSHTTPButton"
-        android:text="发送HTTP请求"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:id="@+id/SendCORSHTTPButton"
+            android:text="发送HTTP请求"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/sendggaButton"
+            android:text="发送gga"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
     <Button
-        android:id="@+id/sendggaButton"
-        android:text="发送gga"
-        android:layout_width="wrap_content"
+        android:id="@+id/RangeReadinessButton"
+        android:text="准备测距"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/DistanceText"
+        android:text="距离: "
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
