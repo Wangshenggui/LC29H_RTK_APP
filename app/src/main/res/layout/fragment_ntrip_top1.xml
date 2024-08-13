@@ -14,14 +14,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <EditText
-        android:id="@+id/CORSip"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="输入IP地址"
-        android:inputType="text"
-        android:text="120.253.226.97"
-        android:ems="10" />
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <EditText
+            android:id="@+id/CORSip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="输入IP地址"
+            android:inputType="numberDecimal"
+            android:digits="0123456789."
+            android:layout_weight="0.6"
+            android:ems="10" />
+
+        <CheckBox
+            android:id="@+id/RememberTheServerIP"
+            android:textSize="16dp"
+            android:text="记住"
+            android:layout_weight="1.4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,16 +49,15 @@
             android:layout_height="wrap_content"
             android:hint="输入端口号"
             android:inputType="number"
-            android:text="8002"
-            android:layout_weight="1"
+            android:layout_weight="1.4"
             android:ems="10" />
 
         <Button
             android:id="@+id/ConnectCORSserverButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="连接CORS服务器"
+            android:layout_weight="0.6"
+            android:text="连接CORS"
             android:ems="10"/>
     </LinearLayout>
 
@@ -53,7 +67,6 @@
         android:layout_height="wrap_content"
         android:hint="输入账号"
         android:inputType="text"
-        android:text="cedr21513"
         android:ems="10" />
 
     <EditText
@@ -62,26 +75,62 @@
         android:layout_height="wrap_content"
         android:hint="输入密码"
         android:inputType="text"
-        android:text="fyx69746"
         android:ems="10" />
 
-    <Spinner
-        android:id="@+id/CORSmount"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="36dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.018"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Spinner
+            android:id="@+id/CORSmount"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_weight="0.6"
+            app:layout_constraintHorizontal_bias="0.018"/>
+
+        <CheckBox
+            android:id="@+id/RememberTheCORSInformation"
+            android:textSize="16dp"
+            android:text="记住"
+            android:layout_weight="1.4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:id="@+id/SendCORSHTTPButton"
+            android:text="发送HTTP请求"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/sendggaButton"
+            android:text="发送gga"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
     <Button
-        android:id="@+id/SendCORSHTTPButton"
-        android:text="发送HTTP请求"
-        android:layout_width="wrap_content"
+        android:id="@+id/RangeReadinessButton"
+        android:text="准备测距"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/sendggaButton"
-        android:text="发送gga"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/DistanceText"
+        android:text="距离: "
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView

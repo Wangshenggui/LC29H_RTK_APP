@@ -1,18 +1,22 @@
 package com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,9 +25,21 @@ import android.widget.Toast;
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedWriter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,6 +62,11 @@ public class Ntrip_top1Fragment extends Fragment {
     Spinner CORSmount;
     EditText CORSAccount;
     EditText CORSPassword;
+    CheckBox RememberTheServerIP;
+    CheckBox RememberTheCORSInformation;
+    Button RangeReadinessButton;
+    TextView DistanceText;
+
 
     String MountPoint=" ";
 
@@ -105,6 +126,24 @@ public class Ntrip_top1Fragment extends Fragment {
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
+
+
+//                        String str = MainActivity.getReadRMCString();
+//
+//                        // 分割NMEA语句，获取各字段
+//                        String[] fields = str.split(",");
+//
+//                        // 解析纬度
+//                        double latitude = convertToDecimal(fields[3]);
+//                        MainActivity.setnew_lat(latitude);
+//
+//                        // 解析经度
+//                        double longitude = convertToDecimal(fields[5]);
+//                        MainActivity.setnew_lon(longitude);
+//
+//                        double distance=0;
+//                        distance = 1000*linear_distance(MainActivity.getlast_lat(),MainActivity.getlast_lon(),MainActivity.getnew_lat(),MainActivity.getnew_lon());
+//                        DistanceText.setText(String.format("距离: %.4f m", distance));
                     }
                 }
 
@@ -130,6 +169,281 @@ public class Ntrip_top1Fragment extends Fragment {
         CORSmount = view.findViewById(R.id.CORSmount);
         CORSAccount = view.findViewById(R.id.CORSAccount);
         CORSPassword = view.findViewById(R.id.CORSPassword);
+        RememberTheServerIP = view.findViewById(R.id.RememberTheServerIP);
+        RememberTheCORSInformation = view.findViewById(R.id.RememberTheCORSInformation);
+        RangeReadinessButton = view.findViewById(R.id.RangeReadinessButton);
+        DistanceText = view.findViewById(R.id.DistanceText);
+
+        RangeReadinessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 分割NMEA语句，获取各字段
+                String[] fields = MainActivity.getReadGGAString().split(",");
+
+                // 解析纬度
+                double latitude = convertToDecimal(fields[2]);
+                MainActivity.setlast_lat(latitude);
+
+                // 解析经度
+                double longitude = convertToDecimal(fields[4]);
+                MainActivity.setlast_lon(longitude);
+            }
+        });
+
+
+        // 文件名
+        String fileName = "RememberTheServerIPFile";
+        // 获取应用的文件目录
+        File file = new File(getActivity().getFilesDir(), fileName);
+
+        if (!file.exists()) {
+            // 文件不存在，创建并写入内容
+            try {
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write("1:1");  // 写入文本内容
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 文件存在，检查是否为空
+            if (file.length() == 0) {
+                // 文件为空，写入内容
+                try {
+                    FileWriter writer = new FileWriter(file);
+                    writer.write("1:1");  // 写入文本内容
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 文件不为空，执行其他操作或不操作
+//                Toast.makeText(getActivity(), "File already contains content", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // 文件名
+        fileName = "RememberTheCORSInformationFile";
+        // 获取应用的文件目录
+        file = new File(getActivity().getFilesDir(), fileName);
+
+        if (!file.exists()) {
+            // 文件不存在，创建并写入内容
+            try {
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write("1:1");  // 写入文本内容
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 文件存在，检查是否为空
+            if (file.length() == 0) {
+                // 文件为空，写入内容
+                try {
+                    FileWriter writer = new FileWriter(file);
+                    writer.write("1:1");  // 写入文本内容
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 文件不为空，执行其他操作或不操作
+//                Toast.makeText(getActivity(), "File already contains content", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+
+        FileInputStream fis = null;
+        try {
+            fis = getActivity().openFileInput("RememberFlag1");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            if(fileContents.equals("1")){
+                RememberTheServerIP.setChecked(true);
+                readFillIPportFile("RememberTheServerIPFile" + ".csv",1);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        fis = null;
+        try {
+            fis = getActivity().openFileInput("RememberFlag2");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            if(fileContents.equals("1")){
+                RememberTheCORSInformation.setChecked(true);
+                readFillIPportFile("RememberTheCORSInformationFile" + ".csv",2);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        RememberTheServerIP.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean isCheck1 = RememberTheServerIP.isChecked();
+
+                String sIP = CORSip.getText().toString().trim();
+                String sPort = CORSport.getText().toString().trim();
+
+                if(isCheck1){
+                    if(TextUtils.isEmpty(sIP) || TextUtils.isEmpty(sPort)){
+
+                    }else{
+                        StringBuilder Data = new StringBuilder();
+                        Data.append("1");
+                        FileOutputStream fos = null;
+                        try {
+                            fos = getActivity().openFileOutput("RememberFlag1", Context.MODE_PRIVATE);
+                            fos.write(Data.toString().getBytes());
+                            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (fos != null) {
+                                    fos.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        writeFileIPport("RememberTheServerIPFile" + ".csv", CORSip.getText().toString(),CORSport.getText().toString());
+                    }
+                }else {
+                    StringBuilder Data = new StringBuilder();
+                    Data.append("0");
+                    FileOutputStream fos = null;
+                    try {
+                        fos = getActivity().openFileOutput("RememberFlag1", Context.MODE_PRIVATE);
+                        fos.write(Data.toString().getBytes());
+                        //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fos != null) {
+                                fos.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        RememberTheCORSInformation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean isCheck = RememberTheCORSInformation.isChecked();
+                String sAccount = CORSAccount.getText().toString().trim();
+                String sPassword = CORSPassword.getText().toString().trim();
+
+                if(isCheck){
+                    if(TextUtils.isEmpty(sAccount) || TextUtils.isEmpty(sPassword)){
+
+                    }else{
+                        StringBuilder Data = new StringBuilder();
+                        Data.append("1");
+                        FileOutputStream fos = null;
+                        try {
+                            fos = getActivity().openFileOutput("RememberFlag2", Context.MODE_PRIVATE);
+                            fos.write(Data.toString().getBytes());
+                            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (fos != null) {
+                                    fos.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        writeFileAccountPassword("RememberTheCORSInformationFile" + ".csv", CORSAccount.getText().toString(),CORSPassword.getText().toString());
+                    }
+                }else {
+                    StringBuilder Data = new StringBuilder();
+                    Data.append("0");
+                    FileOutputStream fos = null;
+                    try {
+                        fos = getActivity().openFileOutput("RememberFlag2", Context.MODE_PRIVATE);
+                        fos.write(Data.toString().getBytes());
+                        //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fos != null) {
+                                fos.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
 
         ConnectCORSserverButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,21 +464,25 @@ public class Ntrip_top1Fragment extends Fragment {
         SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
-                // 编码字符串
-                String encodedString = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-                }
+                if(MainActivity.getBluetoothConFlag()){
+                    String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
+                    // 编码字符串
+                    String encodedString = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                    }
 
-                String message = "GET /" +
-                        MountPoint +
-                        " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                        encodedString +
-                        "\r\n\r\n";
+                    String message = "GET /" +
+                            MountPoint +
+                            " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+                            encodedString +
+                            "\r\n\r\n";
 
-                if (MainActivity.isBound) {
-                    MainActivity.socketService.sendMessage(message);
+                    if (MainActivity.isBound) {
+                        MainActivity.socketService.sendMessage(message);
+                    }
+                }else{
+                    MainActivity.showToast(getActivity(),"蓝牙未连接");
                 }
             }
         });
@@ -260,6 +578,115 @@ public class Ntrip_top1Fragment extends Fragment {
 
         // 选择数据源之后默认选中第一个
         CORSmount.setSelection(0);
+    }
+
+    private void writeFileIPport(String filename, String ip,String port) {
+        StringBuilder Data = new StringBuilder();
+
+        Data.append(ip).append(":").append(port);
+
+        FileOutputStream fos = null;
+        try {
+            fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(Data.toString().getBytes());
+            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void writeFileAccountPassword(String filename, String Account,String Password) {
+        StringBuilder Data = new StringBuilder();
+
+        Data.append(Account).append(":").append(Password);
+
+        FileOutputStream fos = null;
+        try {
+            fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(Data.toString().getBytes());
+            //Toast.makeText(this, "CSV file saved successfully", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void readFillIPportFile(String fileName,int num) {
+        FileInputStream fis = null;
+        try {
+            fis = getActivity().openFileInput(fileName);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            // Read each line from the file
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            // Show the contents in a Toast message
+            String fileContents = sb.toString();
+            String[] strarray=fileContents.split("[:]");
+//            MainActivity.showToast(getActivity(),strarray[0] + strarray[1]);
+
+            if(num==1){
+                CORSip.setText(strarray[0]);
+                CORSport.setText(strarray[1]);
+            } else if (num==2) {
+                CORSAccount.setText(strarray[0]);
+                CORSPassword.setText(strarray[1]);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    double linear_distance(double lat1, double lon1, double lat2, double lon2) {
+        double dlat = Math.toRadians(lat2 - lat1);
+        double dlon = Math.toRadians(lon2 - lon1);
+
+
+        // 使用简单的勾股定理计算直线距离
+        double a = Math.sin(dlat / 2) * Math.sin(dlat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dlon / 2) * Math.sin(dlon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = 6371.0 * c;
+
+        return distance;
+    }
+
+    // 将度和分钟格式转换为十进制格式
+    private static double convertToDecimal(String coordinate) {
+        double degrees = Double.parseDouble(coordinate.substring(0, coordinate.indexOf('.') - 2));
+        double minutes = Double.parseDouble(coordinate.substring(coordinate.indexOf('.') - 2));
+        return degrees + (minutes / 60.0);
     }
 
     @Override
