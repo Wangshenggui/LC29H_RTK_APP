@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SocketService extends Service {
 
@@ -99,56 +100,68 @@ public class SocketService extends Service {
         socketThread.start();
     }
 
+    private static final ReentrantLock sendlock = new ReentrantLock();
     // 发送消息到服务器的方法
     public void sendMessage(String message) {
-        if (socket != null && outputStream != null) {
-            new Thread(() -> {
-                try {
-                    outputStream.write(message.getBytes(StandardCharsets.UTF_8));
-                    outputStream.flush();
-//                    showToast("消息已发送");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "消息发送失败: " + e.getMessage());
-                    showToast("消息发送失败");
-                }
-            }).start();
-        } else {
-            showToast("套接字未连接");
+        sendlock.lock(); // 获取锁
+        try {
+            if (socket != null && outputStream != null) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write(message.getBytes(StandardCharsets.UTF_8));
+                        outputStream.flush();
+                        showToast("消息已发送");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "消息发送失败: " + e.getMessage());
+                        showToast("消息发送失败");
+                    }
+                }).start();
+            } else {
+                showToast("套接字未连接");
+            }
+        } finally {
+            sendlock.unlock(); // 确保最终释放锁
         }
     }
 
+    private static final ReentrantLock readlock = new ReentrantLock();
     // 从服务器读取消息的方法
     // Method to read messages from the server
     private void readFromSocket() {
-        if (inputStream != null) {
-            try {
-                byte[] buffer = new byte[2048];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    // Process raw byte data directly
-                    byte[] rawMessage = Arrays.copyOf(buffer, bytesRead);
+        readlock.lock(); // 获取锁
+        try {
+            if (inputStream != null) {
+                try {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        // Process raw byte data directly
+                        byte[] rawMessage = Arrays.copyOf(buffer, bytesRead);
 
-                    // Synchronize access to the outputStream
-//                    synchronized (MainActivity.class) {
-                        // Example of sending data via Bluetooth to RTK
-                        MainActivity.outputStream.write(rawMessage);
-                        // Flush the outputStream if necessary
-                        MainActivity.outputStream.flush();
-//                    }
+                        // Synchronize access to the outputStream
+    //                    synchronized (MainActivity.class) {
+                            // Example of sending data via Bluetooth to RTK
+                            MainActivity.outputStream.write(rawMessage);
+                            // Flush the outputStream if necessary
+                            MainActivity.outputStream.flush();
+    //                    }
 
-//                    String message = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
-//                    Log.d(TAG, "收到信息: " + message);
-//                    showToast(" " + bytesRead);
+//                        String message = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
+//                        Log.d(TAG, "收到信息: " + message);
+//                        showToast(" " + bytesRead);
 
-                    // Example: Display a Toast with the length of the received raw data
-                    // showToast("Received raw data, length: " + rawMessage.length);
+                        // Example: Display a Toast with the length of the received raw data
+                        // showToast("Received raw data, length: " + rawMessage.length);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "Failed to read from socket: " + e.getMessage());
+                    showToast("Failed to read from socket");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Failed to read from socket: " + e.getMessage());
-                showToast("Failed to read from socket");
             }
+        } finally {
+            readlock.unlock(); // 确保最终释放锁
         }
     }
 

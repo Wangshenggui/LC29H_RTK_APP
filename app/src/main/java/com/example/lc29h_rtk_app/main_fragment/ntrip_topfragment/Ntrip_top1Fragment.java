@@ -1,7 +1,10 @@
 package com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -24,6 +27,10 @@ import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+import com.example.lc29h_rtk_app.WebSocketService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,7 +63,6 @@ public class Ntrip_top1Fragment extends Fragment {
     Button ConnectCORSserverButton;
     Button SendCORSHTTPButton;
     Button sendggaButton;
-    TextView showGGA;
     EditText CORSip;
     EditText CORSport;
     Spinner CORSmount;
@@ -64,13 +70,14 @@ public class Ntrip_top1Fragment extends Fragment {
     EditText CORSPassword;
     CheckBox RememberTheServerIP;
     CheckBox RememberTheCORSInformation;
-    Button RangeReadinessButton;
-    TextView DistanceText;
 
 
     String MountPoint=" ";
 
     boolean NtripStartFlag= false;
+
+
+    private WebSocketServiceReceiver webSocketReceiver;
 
     // Timer variables
     private Handler handler;
@@ -117,33 +124,48 @@ public class Ntrip_top1Fragment extends Fragment {
 
         // Define the task to be run periodically
         timerRunnable = new Runnable() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void run() {
                 // Your periodic task
                 String message = MainActivity.getReadGGAString() + "\r\n";
-                showGGA.setText(message + MainActivity.getReadRMCString());
+                String messageWebGGA = MainActivity.getReadGGAString();
+                String messageWebRMC = MainActivity.getReadRMCString();
 
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
 
+                        JSONObject data = new JSONObject();
+                        String[] variables = {"GGA"};
 
-//                        String str = MainActivity.getReadRMCString();
-//
-//                        // 分割NMEA语句，获取各字段
-//                        String[] fields = str.split(",");
-//
-//                        // 解析纬度
-//                        double latitude = convertToDecimal(fields[3]);
-//                        MainActivity.setnew_lat(latitude);
-//
-//                        // 解析经度
-//                        double longitude = convertToDecimal(fields[5]);
-//                        MainActivity.setnew_lon(longitude);
-//
-//                        double distance=0;
-//                        distance = 1000*linear_distance(MainActivity.getlast_lat(),MainActivity.getlast_lon(),MainActivity.getnew_lat(),MainActivity.getnew_lon());
-//                        DistanceText.setText(String.format("距离: %.4f m", distance));
+                        try {
+                            data.put(variables[0], messageWebGGA);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        String jsonMessage = data.toString();
+
+                        Intent intent = new Intent("SendWebSocketMessage");
+                        intent.putExtra("message", jsonMessage);
+                        requireContext().sendBroadcast(intent);
+
+
+                        JSONObject data1 = new JSONObject();
+                        String[] variables1 = {"RMC"};
+
+                        try {
+                            data1.put(variables1[0], messageWebRMC);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        jsonMessage = data1.toString();
+
+                        intent = new Intent("SendWebSocketMessage");
+                        intent.putExtra("message", jsonMessage);
+                        requireContext().sendBroadcast(intent);
                     }
                 }
 
@@ -163,7 +185,6 @@ public class Ntrip_top1Fragment extends Fragment {
         ConnectCORSserverButton = view.findViewById(R.id.ConnectCORSserverButton);
         SendCORSHTTPButton = view.findViewById(R.id.SendCORSHTTPButton);
         sendggaButton = view.findViewById(R.id.sendggaButton);
-        showGGA = view.findViewById(R.id.showGGA);
         CORSip = view.findViewById(R.id.CORSip);
         CORSport = view.findViewById(R.id.CORSport);
         CORSmount = view.findViewById(R.id.CORSmount);
@@ -171,24 +192,7 @@ public class Ntrip_top1Fragment extends Fragment {
         CORSPassword = view.findViewById(R.id.CORSPassword);
         RememberTheServerIP = view.findViewById(R.id.RememberTheServerIP);
         RememberTheCORSInformation = view.findViewById(R.id.RememberTheCORSInformation);
-        RangeReadinessButton = view.findViewById(R.id.RangeReadinessButton);
-        DistanceText = view.findViewById(R.id.DistanceText);
 
-        RangeReadinessButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 分割NMEA语句，获取各字段
-                String[] fields = MainActivity.getReadGGAString().split(",");
-
-                // 解析纬度
-                double latitude = convertToDecimal(fields[2]);
-                MainActivity.setlast_lat(latitude);
-
-                // 解析经度
-                double longitude = convertToDecimal(fields[4]);
-                MainActivity.setlast_lon(longitude);
-            }
-        });
 
 
         // 文件名
@@ -492,7 +496,7 @@ public class Ntrip_top1Fragment extends Fragment {
             public void onClick(View v) {
                 String message = MainActivity.getReadGGAString() + "\r\n";
 
-                showGGA.setText(message);
+//                showGGA.setText(message);
 
                 if (MainActivity.isBound) {
                     MainActivity.socketService.sendMessage(message);
@@ -553,6 +557,8 @@ public class Ntrip_top1Fragment extends Fragment {
 
         // 根据 Port 的值更新 Spinner 的选项内容
         updateSpinnerOptions();
+
+        webSocketReceiver = new WebSocketServiceReceiver();
 
         return view;
     }
@@ -669,24 +675,33 @@ public class Ntrip_top1Fragment extends Fragment {
         }
     }
 
-    double linear_distance(double lat1, double lon1, double lat2, double lon2) {
-        double dlat = Math.toRadians(lat2 - lat1);
-        double dlon = Math.toRadians(lon2 - lon1);
-
-
-        // 使用简单的勾股定理计算直线距离
-        double a = Math.sin(dlat / 2) * Math.sin(dlat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dlon / 2) * Math.sin(dlon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = 6371.0 * c;
-
-        return distance;
-    }
-
-    // 将度和分钟格式转换为十进制格式
-    private static double convertToDecimal(String coordinate) {
-        double degrees = Double.parseDouble(coordinate.substring(0, coordinate.indexOf('.') - 2));
-        double minutes = Double.parseDouble(coordinate.substring(coordinate.indexOf('.') - 2));
-        return degrees + (minutes / 60.0);
+    private class WebSocketServiceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("WebSocketMessage".equals(intent.getAction())) {
+//                String message = intent.getStringExtra("message");
+//
+//                try {
+//                    JSONObject jsonObject = new JSONObject(message);
+//
+//                    if (jsonObject.has("GGA")) {
+//                        showGGA.setText(jsonObject.getString("GGA"));
+//                        String str = jsonObject.getString("GGA");
+//                        if(str.length()>50){
+//                            // 分割NMEA语句，获取各字段
+//                            String[] fields = str.split(",");
+//
+//                            MainActivity.setnew_lat(Ntrip_top1Fragment.convertToDecimal(fields[2]));
+//                            MainActivity.setnew_lon(Ntrip_top1Fragment.convertToDecimal(fields[4]));
+//                        }
+//                    } else if (jsonObject.has("RMC")){
+//                        DistanceText.setText(jsonObject.getString("RMC"));
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+            }
+        }
     }
 
     @Override
@@ -694,6 +709,8 @@ public class Ntrip_top1Fragment extends Fragment {
         super.onResume();
         // Start the timer when the fragment is resumed
         startTimer();
+        IntentFilter filter = new IntentFilter("WebSocketMessage");
+        requireContext().registerReceiver(webSocketReceiver, filter);
     }
 
     @Override
@@ -701,6 +718,7 @@ public class Ntrip_top1Fragment extends Fragment {
         super.onPause();
         // Stop the timer when the fragment is paused to prevent memory leaks
         stopTimer();
+        requireContext().unregisterReceiver(webSocketReceiver);
     }
     /**
      * Start the timer to execute the periodic task.

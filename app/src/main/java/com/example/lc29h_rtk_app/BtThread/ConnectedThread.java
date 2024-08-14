@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
+import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -80,6 +81,16 @@ public class ConnectedThread extends Thread{
 
                         MainActivity.setReadGGAString(string);
 
+//                        和CORS冲突闪退
+//                        String str = MainActivity.getReadGGAString();
+//                        if(str.length()>50){
+//                            // 分割NMEA语句，获取各字段
+//                            String[] fields = str.split(",");
+//
+//                            MainActivity.setnew_lat(Ntrip_top1Fragment.convertToDecimal(fields[2]));
+//                            MainActivity.setnew_lon(Ntrip_top1Fragment.convertToDecimal(fields[4]));
+//                        }
+
                         byteArrayOutputStream.reset();
                         receivedData = receivedData.substring(gnggaEndIndex + 2); // Skip \r\n
                         byteArrayOutputStream.write(receivedData.getBytes("UTF-8"));
@@ -95,6 +106,10 @@ public class ConnectedThread extends Thread{
 
 
                         MainActivity.setReadRMCString(string);
+
+//                        String str = MainActivity.getReadRMCString();
+//                        // 分割NMEA语句，获取各字段
+//                        String[] fields = str.split(",");
 
                         byteArrayOutputStream.reset();
                         receivedData = receivedData.substring(gnrmcEndIndex + 2); // Skip \r\n

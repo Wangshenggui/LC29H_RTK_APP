@@ -30,7 +30,7 @@ var map;
 
         // 创建 WebSocket 连接和自动重连逻辑
         var socket = null;
-        var socketUrl = 'ws://8.137.81.229:8880'; // 替换为你的 WebSocket URL
+        var socketUrl = 'ws://47.109.46.41:8001'; // 替换为你的 WebSocket URL
 
         function connectWebSocket() {
             socket = new WebSocket(socketUrl);
@@ -44,81 +44,32 @@ var map;
             socket.onmessage = function(event) {
                 console.log('Received message from server: ' + event.data);
 
-                // 解析 JSON 数据
-                var data = JSON.parse(event.data);
+                    // 解析 JSON 数据
+                    var data = JSON.parse(event.data);
 
-                // 提取经度和纬度
-                var longitude = data.lon;
-                var latitude = data.lat;
-                //提取速度
-                var speed = data.speed;
-                //提取RTK状态
-                var status = data.rtksta;
-                //提取卫星数量
-                var HCSDS = data.HCSDS;
-                //提取海拔高度
-                var altitude = data.alti;
+                    // 提取 GGA 信息，并去除 $ 符号之前的部分
+                    var ggaData = data.GGA.split('$')[1];
 
-                // 更新经度和纬度文本元素
-                var lonElement = document.querySelector('.text-lon');
-                var latElement = document.querySelector('.text-lat');
-                lonElement.textContent = '经度: ' + longitude.toFixed(10);
-                latElement.textContent = '纬度: ' + latitude.toFixed(10);
-                //更新速度
-                var km_hElement = document.querySelector('.text-speedkmh');
-                var m_sElement = document.querySelector('.text-speedms');
-                km_hElement.textContent = '速度: ' + speed.toFixed(4) + ' (km/h)';
-                speed = speed/3.6;
-                m_sElement.textContent = '速度: ' + speed.toFixed(4) + ' (m/s)';
-                //更新RTK状态
-                var statusElement = document.querySelector('.text-status');
-                statusElement.textContent = 'RTK状态: ' + getRTKStateText(status);
-                //更新卫星数量
-                var HCSDSElement = document.querySelector('.text-HCSDS');
-                HCSDSElement.textContent = '卫星数量: ' + HCSDS;
-                //更新海拔高度
-                var altitudeElement = document.querySelector('.text-altitude');
-                altitudeElement.textContent = '海拔高度: ' + altitude.toFixed(2) + ' m';
+                    // 分割 GGA 字符串以提取各部分
+                    var ggaParts = ggaData.split(',');
 
-                // 转换为 BD-09 坐标
-                var bd09 = wgs84ToBd09(data.lon, data.lat);
-                // 添加新的点到轨迹点数组中，但只有当经纬度大于阈值时才添加
-                if (Math.abs(data.lon) > 0.0065 && Math.abs(data.lat) > 0.0065) {
-                    var newPoint = new BMap.Point(bd09[0], bd09[1]);
-                    points.push(newPoint);
+                    // 提取经度信息
+                    var rawLon = ggaParts[4]; // 经度 10636.505176
+                    var parsedLon = dmsToDecimal(rawLon); // 转换为十进制度数
 
-                    // 删除之前的轨迹线（如果存在），但只有在地图没有被拖动时才进行中心移动和轨迹线绘制
-                    if (!mapIsBeingDragged) {
-                        if (polyline) {
-                            map.removeOverlay(polyline);
-                        }
-                        // 创建新的轨迹线
-                        polyline = new BMap.Polyline(points, {strokeColor:"red", strokeWeight:6, strokeOpacity:1});
-                        map.addOverlay(polyline);
+                    // 提取纬度信息
+                    var rawLat = ggaParts[2]; // 纬度 2623.010141
+                    var parsedLat = dmsToDecimal(rawLat); // 转换为十进制度数
 
-                        // 创建新的标记
-                        var newMarker = new BMap.Marker(newPoint);
-                        newMarker.setIcon(new BMap.Icon('img/huaji.png', new BMap.Size(16, 45)));
+                    // 获取显示经度的 HTML 元素
+                    var lonElement = document.querySelector('.text-lon');
+                    // 显示解析后的经度
+                    lonElement.textContent = '经度: ' + parsedLon.toFixed(11); // 保留6位小数
 
-                        // 清除上一次的标记
-                        if (marker) {
-                            map.removeOverlay(marker);  // 从地图中移除上一次的标记
-                        }
-
-                        // 将新标记添加到地图上
-                        map.addOverlay(newMarker);
-
-                        // 更新 marker 变量为新的标记
-                        marker = newMarker;
-
-
-                        // 添加标记到地图
-                        map.addOverlay(marker);
-
-                        // 将地图中心移动到最新点
-                        map.panTo(newPoint);
-                    }
-                }
+                    // 获取显示纬度的 HTML 元素
+                    var latElement = document.querySelector('.text-lat');
+                    // 显示解析后的纬度
+                    latElement.textContent = '纬度: ' + parsedLat.toFixed(11); // 保留6位小数
             };
 
             socket.onclose = function(event) {
@@ -135,6 +86,16 @@ var map;
 
         // 初始连接
         connectWebSocket();
+
+        function dmsToDecimal(dms) {
+            // 提取度数部分
+            let degrees = Math.floor(dms / 100);
+            // 计算分钟部分
+            let minutes = dms - (degrees * 100);
+            // 转换为十进制度数
+            let decimalDegrees = degrees + (minutes / 60.0);
+            return decimalDegrees;
+        }
 
         // 根据RTK状态值返回对应的文本
         function getRTKStateText(rtkState) {
