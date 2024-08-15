@@ -54,7 +54,7 @@ html, body {
     background-color: #f0f0f0;
 }
 
-.text-lon, .text-lat, .text-speedms, .text-speedkmh, .text-status, .text-HCSDS, .text-altitude {
+.text-lon, .text-lat, .text-speedms, .text-speedkmh, .text-status, .text-HCSDS, .text-altitude, .text-HDOP {
     width: 50%;
     text-align: left; /* 左对齐文本 */
     font-size: 16px; /* 根据需要调整字体大小 */
