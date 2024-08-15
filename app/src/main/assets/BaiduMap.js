@@ -4,6 +4,12 @@ var polyline; // 用于绘制轨迹线的对象
 var mapIsBeingDragged = false; // 追踪地图拖动状态
 var marker;
 
+var last_lon;
+var last_lat;
+
+var new_lon;
+var new_lat;
+
 function initMap() {
     map = new BMap.Map("map"); // 创建百度地图实例
     var point = new BMap.Point(116.404, 39.915); // 创建一个初始点坐标
@@ -64,6 +70,12 @@ function connectWebSocket() {
                 document.querySelector('.text-HCSDS').textContent = '卫星数量: ' + ggaData.satelliteCount;
                 document.querySelector('.text-altitude').textContent = '海拔高度: ' + ggaData.altitude + ' m';
                 document.querySelector('.text-HDOP').textContent = '水平精度因子: ' + ggaData.HDOP;
+
+                new_lat = ggaData.latitude;
+                new_lon = ggaData.longitude;
+
+                const distance = linearDistance(last_lat, last_lon, new_lat, new_lon);
+                document.querySelector('.text-Distance').textContent = '距离: ' + (1000 * distance).toFixed(10) + ' m';
             }
         }
 
@@ -247,3 +259,30 @@ document.getElementById('ClearMapButton').addEventListener('click', function() {
         marker = null;
     }
 });
+
+// 辅助函数：将角度转换为弧度
+function toRadians(degrees) {
+    return degrees * Math.PI / 180.0;
+}
+
+// 使用 Haversine 公式计算地球上两点之间的距离
+function linearDistance(lat1, lon1, lat2, lon2) {
+    // 将纬度和经度差转换为弧度
+    const dlat = toRadians(lat2 - lat1);
+    const dlon = toRadians(lon2 - lon1);
+
+    // 使用 Haversine 公式计算距离
+    const a = Math.sin(dlat / 2) * Math.sin(dlat / 2) +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+              Math.sin(dlon / 2) * Math.sin(dlon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = 6371.0 * c; // 地球半径为 6371 公里
+
+    return distance;
+}
+
+document.getElementById('StartRangingButton').addEventListener('click', function() {
+    last_lat = new_lat;
+    last_lon = new_lon;
+});
+

@@ -61,3 +61,29 @@ html, body {
     margin: 0; /* 清除默认的外边距 */
 }
 
+/* 自定义 StartRangingButton 样式 */
+#StartRangingButton {
+    background-color: #28a745; /* 按钮背景颜色 */
+    border-radius: 8px; /* 更圆的圆角 */
+    padding: 12px 24px; /* 更大的内边距 */
+    font-weight: bold; /* 字体加粗 */
+    color: #fff; /* 文字颜色 */
+    border: none; /* 去除默认边框 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    font-size: 16px; /* 字体大小 */
+    margin: 10px 0; /* 上下外边距 */
+    display: block; /* 使按钮为块级元素，自动占满父容器的宽度 */
+    text-align: center; /* 文字居中对齐 */
+}
+
+/* StartRangingButton 悬停和点击样式 */
+#StartRangingButton:hover {
+    background-color: #218838; /* 悬停时的背景颜色 */
+}
+
+#StartRangingButton:active {
+    background-color: #1e7e34; /* 点击时的背景颜色 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 减小阴影 */
+}
+
+

@@ -110,7 +110,7 @@ public class SocketService extends Service {
                     try {
                         outputStream.write(message.getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
-                        showToast("消息已发送");
+//                        showToast("消息已发送");
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.e(TAG, "消息发送失败: " + e.getMessage());

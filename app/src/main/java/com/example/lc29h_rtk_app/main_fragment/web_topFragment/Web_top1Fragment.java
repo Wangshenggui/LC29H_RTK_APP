@@ -33,7 +33,6 @@ public class Web_top1Fragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     private WebView webView;
-    Button WebTestButton;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -85,29 +84,6 @@ public class Web_top1Fragment extends Fragment {
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/BaiduMap.html"); // 载入网页的URL
 
-        WebTestButton = view.findViewById(R.id.WebTestButton);
-
-        WebTestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                JSONObject data = new JSONObject();
-                String[] variables = {"a","b","c"};
-
-                try {
-                    data.put(variables[0], 12);
-                    data.put(variables[1], 34);
-                    data.put(variables[2], 56);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                String jsonMessage = data.toString();
-
-                Intent intent = new Intent("SendWebSocketMessage");
-                intent.putExtra("message", jsonMessage);
-                requireContext().sendBroadcast(intent);
-            }
-        });
 
         return view;
     }
