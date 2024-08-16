@@ -25,22 +25,7 @@
         android:theme="@style/Theme.LC29H_RTK_APP"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <service
-            android:name=".main_fragment.FloatingWidgetService"
-            android:enabled="true"
-            android:stopWithTask="false"
-            android:exported="true"></service>
-        <service
-            android:name=".SocketService"
-            android:enabled="true"
-            android:stopWithTask="false"
-            android:exported="true" />
-        <service
-            android:name=".Service.SocketService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="connectedDevice"
-            tools:ignore="ForegroundServicePermission" />
+
 
         <activity
             android:name=".MainActivity"
@@ -57,9 +42,21 @@
             android:name=".WebSocketService"
             android:exported="false"
             android:stopWithTask="false"
-            android:foregroundServiceType="connectedDevice"
+            android:foregroundServiceType="location|mediaPlayback|connectedDevice"
             tools:ignore="ForegroundServicePermission" />
 
+        <service
+            android:name=".main_fragment.FloatingWidgetService"
+            android:enabled="true"
+            android:stopWithTask="false"
+            android:exported="true"/>
+        <service
+            android:name=".SocketService"
+            android:enabled="true"
+            android:stopWithTask="false"
+            android:exported="false"
+            tools:ignore="ForegroundServicePermission"
+            android:foregroundServiceType="location|mediaPlayback|connectedDevice"/>
     </application>
 
 </manifest>

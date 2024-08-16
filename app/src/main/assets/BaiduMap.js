@@ -182,7 +182,7 @@ function connectWebSocket() {
 
     socket.onclose = function(event) {
         console.log('WebSocket is closed. Reconnecting...');
-        alert('WebSocket连接已断开，正在尝试重新连接...');
+//        alert('WebSocket连接已断开，正在尝试重新连接...');
         setTimeout(connectWebSocket, 100); // 2秒后尝试重新连接
     };
 
