@@ -374,5 +374,22 @@ function linearDistance(lat1, lon1, lat2, lon2) {
 document.getElementById('StartRangingButton').addEventListener('click', function() {
     last_lat = new_lat;
     last_lon = new_lon;
+
+    sendDataToAndroid('点击你');
 });
+
+// Function to send data to Android
+function sendDataToAndroid(data) {
+    if (typeof Android !== 'undefined') {
+        Android.sendDataToAndroid(data);
+    } else {
+        console.log("Android interface not found");
+    }
+}
+
+// Function to handle data received from Android
+function receiveDataFromAndroid(message) {
+    console.log("Received message from Android:", message);
+}
+
 
