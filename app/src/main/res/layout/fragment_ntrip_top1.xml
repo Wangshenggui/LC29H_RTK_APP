@@ -113,7 +113,7 @@
 
         <Button
             android:id="@+id/sendggaButton"
-            android:text="发送gga"
+            android:text="开始转发RTCM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>

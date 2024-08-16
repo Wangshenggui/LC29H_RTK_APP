@@ -28,10 +28,12 @@
         <service
             android:name=".main_fragment.FloatingWidgetService"
             android:enabled="true"
+            android:stopWithTask="false"
             android:exported="true"></service>
         <service
             android:name=".SocketService"
             android:enabled="true"
+            android:stopWithTask="false"
             android:exported="true" />
         <service
             android:name=".Service.SocketService"
@@ -42,6 +44,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,8 +56,10 @@
         <service
             android:name=".WebSocketService"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="connectedDevice"
             tools:ignore="ForegroundServicePermission" />
+
     </application>
 
 </manifest>

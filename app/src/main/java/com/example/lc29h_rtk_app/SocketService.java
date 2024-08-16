@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SocketService extends Service {
@@ -31,8 +33,12 @@ public class SocketService extends Service {
     private InputStream inputStream;
     private Thread socketThread;
 
+    private final ExecutorService executorService = Executors.newCachedThreadPool();  // 线程池管理
+    private final ReentrantLock sendlock = new ReentrantLock();  // 发送锁
+    private final ReentrantLock readlock = new ReentrantLock();  // 读取锁
+
     private Toast currentToast;
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Handler mainHandler;
 
     @Override
     public void onCreate() {
@@ -52,128 +58,109 @@ public class SocketService extends Service {
         }
     }
 
-    // 启动前台服务的方法
     private void startForegroundService() {
-        // 创建通知频道并启动前台服务以防止服务被系统杀掉
-        // 创建通知频道并启动前台服务以防止服务被系统杀掉
-        NotificationChannel channel = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            channel = new NotificationChannel("socket_channel", "Socket Service", NotificationManager.IMPORTANCE_DEFAULT);
-        }
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            manager.createNotificationChannel(channel);
+            NotificationChannel channel = new NotificationChannel(
+                    "socket_channel",
+                    "Socket Service",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
 
-        Notification.Builder builder = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            builder = new Notification.Builder(this, "socket_channel")
-                    .setContentTitle("Socket Service")
-                    .setContentText("Running...")
-                    .setSmallIcon(R.drawable.ic_launcher_background);
-        }
+        Notification notification = new Notification.Builder(this, "socket_channel")
+                .setContentTitle("Socket Service")
+                .setContentText("Service is running in the background")
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .build();
 
-        Notification notification = builder.build();
         startForeground(1, notification);
     }
 
-    // 连接服务器的方法
     public void connectToServer(String ipAddress, int port) {
         socketThread = new Thread(() -> {
-            try {
-                socket = new Socket(ipAddress, port);
-                outputStream = socket.getOutputStream();
-                inputStream = socket.getInputStream();
+            while (true) {
+                try {
+                    socket = new Socket(ipAddress, port);
+                    outputStream = socket.getOutputStream();
+                    inputStream = socket.getInputStream();
 
-                // 显示一个Toast消息
-                showToast("已连接服务器");
+                    showToast("已连接服务器");
+                    readFromSocket();
+                    break;  // 连接成功后退出循环
 
-                // 开始从套接字读取
-                readFromSocket();
+                } catch (IOException e) {
+                    Log.e(TAG, "连接失败: " + e.getMessage());
+                    showToast("连接失败，正在重试...");
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "连接失败: " + e.getMessage());
-                showToast("连接失败");
+                    // 等待5秒后重新尝试连接
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException interruptedException) {
+                        interruptedException.printStackTrace();
+                    }
+                }
             }
         });
         socketThread.start();
     }
 
-    private static final ReentrantLock sendlock = new ReentrantLock();
-    // 发送消息到服务器的方法
     public void sendMessage(String message) {
-        sendlock.lock(); // 获取锁
+        sendlock.lock();  // 获取发送锁
         try {
             if (socket != null && outputStream != null) {
-                new Thread(() -> {
+                executorService.submit(() -> {
                     try {
                         outputStream.write(message.getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
-//                        showToast("消息已发送");
                     } catch (IOException e) {
-                        e.printStackTrace();
                         Log.e(TAG, "消息发送失败: " + e.getMessage());
                         showToast("消息发送失败");
                     }
-                }).start();
+                });
             } else {
                 showToast("套接字未连接");
             }
         } finally {
-            sendlock.unlock(); // 确保最终释放锁
+            sendlock.unlock();  // 释放发送锁
         }
     }
 
-    private static final ReentrantLock readlock = new ReentrantLock();
-    // 从服务器读取消息的方法
-    // Method to read messages from the server
     private void readFromSocket() {
-        readlock.lock(); // 获取锁
+        readlock.lock();  // 获取读取锁
         try {
             if (inputStream != null) {
                 try {
                     byte[] buffer = new byte[2048];
                     int bytesRead;
                     while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        // Process raw byte data directly
                         byte[] rawMessage = Arrays.copyOf(buffer, bytesRead);
 
-                        // Synchronize access to the outputStream
-    //                    synchronized (MainActivity.class) {
-                            // Example of sending data via Bluetooth to RTK
-                            MainActivity.outputStream.write(rawMessage);
-                            // Flush the outputStream if necessary
-                            MainActivity.outputStream.flush();
-    //                    }
+                        // 同步发送数据到其他地方 (比如蓝牙设备)
+                        MainActivity.outputStream.write(rawMessage);
+                        MainActivity.outputStream.flush();
 
-//                        String message = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
-//                        Log.d(TAG, "收到信息: " + message);
-//                        showToast(" " + bytesRead);
-
-                        // Example: Display a Toast with the length of the received raw data
-                        // showToast("Received raw data, length: " + rawMessage.length);
+                        // 显示接收的消息长度
+                        showToast("Received data, length: " + rawMessage.length);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Failed to read from socket: " + e.getMessage());
-                    showToast("Failed to read from socket");
+                    Log.e(TAG, "读取失败: " + e.getMessage());
+                    showToast("读取失败");
                 }
             }
         } finally {
-            readlock.unlock(); // 确保最终释放锁
+            readlock.unlock();  // 释放读取锁
         }
     }
 
     private void showToast(final String message) {
-        // 确保Toast在主UI线程上运行
         mainHandler.post(() -> {
-            // 如果前一个toast还在显示，取消它
             if (currentToast != null) {
-                currentToast.cancel();
+                currentToast.cancel();  // 取消前一个Toast
             }
-
-            // 创建并显示一个新的toast
             currentToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
             currentToast.show();
         });
@@ -182,13 +169,21 @@ public class SocketService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (socketThread != null && socketThread.isAlive()) {
+            socketThread.interrupt();  // 停止Socket线程
+        }
+
+        if (executorService != null) {
+            executorService.shutdown();  // 关闭线程池
+        }
+
         try {
-            if (socket != null) {
-                socket.close();
+            if (socket != null && !socket.isClosed()) {
+                socket.close();  // 关闭Socket连接
                 showToast("连接已关闭");
             }
         } catch (IOException e) {
-            e.printStackTrace();
             Log.e(TAG, "关闭套接字失败: " + e.getMessage());
             showToast("关闭套接字失败");
         }

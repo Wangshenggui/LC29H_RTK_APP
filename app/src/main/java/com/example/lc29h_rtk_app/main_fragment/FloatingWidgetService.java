@@ -1,5 +1,8 @@
 package com.example.lc29h_rtk_app.main_fragment;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -16,19 +19,21 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.example.lc29h_rtk_app.MainActivity; // 如果需要从 MainActivity 获取参数
+import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
 
 public class FloatingWidgetService extends Service {
 
+    private static final String CHANNEL_ID = "floating_widget_channel"; // 定义通知通道的ID
     private WindowManager mWindowManager;
     private View mFloatingView;
-    private TextView parameterText; // 用于显示参数的TextView
-    private boolean isTextVisible = false; // 用于标识文本是否可见
-    private static final int CLICK_THRESHOLD = 10; // 设置点击事件的移动阈值
-    private Handler handler; // 用于定时更新参数信息的Handler
-    private Runnable updateTask; // 定时更新任务
+    private TextView parameterText;
+    private boolean isTextVisible = false;
+    private static final int CLICK_THRESHOLD = 10;
+    private Handler handler;
+    private Runnable updateTask;
 
+    // 获取屏幕宽度
     int getScreenWidth(Context context) {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
@@ -40,6 +45,19 @@ public class FloatingWidgetService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // 创建通知通道（仅在 Android 8.0 及以上版本中需要）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Floating Widget Service",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
 
         // 将悬浮控件布局膨胀为View
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget, null);
@@ -121,6 +139,16 @@ public class FloatingWidgetService extends Service {
                 handler.postDelayed(this, 1000); // 每1秒更新一次
             }
         };
+
+        // 创建通知并启动前台服务
+        Notification notification = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("Floating Widget")
+                .setContentText("Service is running")
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .build();
+
+        // 启动前台服务
+        startForeground(1, notification);
     }
 
     /**
@@ -147,10 +175,9 @@ public class FloatingWidgetService extends Service {
                     isTextVisible = false;
                     handler.removeCallbacks(updateTask); // 移除定时任务
                 }
-            }, 3000); // 10秒后自动隐藏
+            }, 3000); // 3秒后自动隐藏
         }
     }
-
 
     /**
      * 显示参数信息
@@ -167,7 +194,6 @@ public class FloatingWidgetService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // 仅当绑定时才实现此方法
         return null;
     }
 
