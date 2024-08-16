@@ -144,6 +144,9 @@ public class SocketService extends Service {
                     while ((bytesRead = inputStream.read(buffer)) != -1) {
                         byte[] rawMessage = Arrays.copyOf(buffer, bytesRead);
 
+                        // 将字节数组转换为字符串
+                        String receivedMessage = new String(rawMessage, StandardCharsets.UTF_8);
+
                         // 同步发送数据到其他地方 (比如蓝牙设备)
                         MainActivity.outputStream.write(rawMessage);
                         MainActivity.outputStream.flush();
@@ -151,9 +154,18 @@ public class SocketService extends Service {
                         // 显示接收的消息长度
                         showToast("Received data, length: " + rawMessage.length);
 
-                        MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.cors_http_request_succeeded_rocedure);
-                        mediaPlayer.start();
+                        // 定义预期的消息字符串
+                        String expectedMessageOK = "ICY 200 OK\r\n";
+                        String expectedMessageERROR = "ERROR - Bad Password\r\n";
 
+                        // 比较接收到的消息与预期消息
+                        if (receivedMessage.equals(expectedMessageOK)) {
+                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.cors_http_request_succeeded_rocedure);
+                            mediaPlayer.start();
+                        } else if (receivedMessage.equals(expectedMessageERROR)){
+                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.bluetooth_connected);
+                            mediaPlayer.start();
+                        }
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "读取失败: " + e.getMessage());
