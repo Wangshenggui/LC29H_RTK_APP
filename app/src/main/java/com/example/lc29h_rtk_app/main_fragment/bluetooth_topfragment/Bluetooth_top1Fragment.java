@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -160,6 +161,10 @@ public class Bluetooth_top1Fragment extends Fragment {
                         connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
                         connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
                         connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
+
+                        //播报蓝牙已连接
+                        MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(),R.raw.bluetooth_connected);
+                        mediaPlayer.start();
 
                         break;
                     }

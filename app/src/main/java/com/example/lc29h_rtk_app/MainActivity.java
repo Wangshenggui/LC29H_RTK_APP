@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -181,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
 
         startRequiredServices();
         setupNavigationView();
+
+//        //播放音乐
+//        MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.music_test);
+//        mediaPlayer.start();
+
 
         // 延迟加载其他Fragment以避免崩溃
         new Handler().postDelayed(this::loadOtherFragments, 500);

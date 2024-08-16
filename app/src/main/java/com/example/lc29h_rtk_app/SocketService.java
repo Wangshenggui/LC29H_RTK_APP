@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -89,6 +90,10 @@ public class SocketService extends Service {
                     inputStream = socket.getInputStream();
 
                     showToast("已连接服务器");
+                    //CORS服务器已连接
+                    MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.the_cors_server_is_connected);
+                    mediaPlayer.start();
+
                     readFromSocket();
                     break;  // 连接成功后退出循环
 
@@ -145,6 +150,10 @@ public class SocketService extends Service {
 
                         // 显示接收的消息长度
                         showToast("Received data, length: " + rawMessage.length);
+
+                        MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.cors_http_request_succeeded_rocedure);
+                        mediaPlayer.start();
+
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "读取失败: " + e.getMessage());
