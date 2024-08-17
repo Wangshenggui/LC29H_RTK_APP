@@ -163,7 +163,7 @@ public class SocketService extends Service {
                             MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.cors_http_request_succeeded_rocedure);
                             mediaPlayer.start();
                         } else if (receivedMessage.equals(expectedMessageERROR)){
-                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.bluetooth_connected);
+                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.account_or_password_incorrec);
                             mediaPlayer.start();
                         }
                     }
