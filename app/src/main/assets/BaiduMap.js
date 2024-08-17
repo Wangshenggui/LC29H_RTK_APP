@@ -75,6 +75,15 @@ function connectWebSocket() {
                     document.querySelector('.text-altitude').textContent = '海拔高度: ' + ggaData.altitude + ' m';
                     document.querySelector('.text-HDOP').textContent = '水平精度因子: ' + ggaData.HDOP;
 
+                    const latitude = ggaData.latitude;
+                    const longitude = ggaData.longitude;
+
+                    const latDMS = toDMS(latitude);
+                    const lonDMS = toDMS(longitude);
+                    document.querySelector('.text-londms').textContent = "----" + lonDMS;
+                    document.querySelector('.text-latdms').textContent = "----" + latDMS;
+
+
                     new_lat = ggaData.latitude;
                     new_lon = ggaData.longitude;
 
@@ -131,6 +140,20 @@ function connectWebSocket() {
             }
         }
     };
+
+    // 将十进制度坐标转换为度分秒格式
+    function toDMS(decimalDegrees) {
+        // 计算度数
+        const degrees = Math.floor(decimalDegrees);
+        // 计算分钟
+        const minutesDecimal = (decimalDegrees - degrees) * 60;
+        const minutes = Math.floor(minutesDecimal);
+        // 计算秒数
+        const seconds = (minutesDecimal - minutes) * 60;
+
+        // 返回格式化的度分秒字符串
+        return `${degrees}°${minutes}'${seconds.toFixed(4)}"`;
+    }
 
     // 验证GGA语句的完整性
     function isValidGGASentence(ggaSentence) {
@@ -376,6 +399,13 @@ document.getElementById('StartRangingButton').addEventListener('click', function
     last_lon = new_lon;
 
     sendDataToAndroid('点击你');
+});
+
+document.getElementById('SaveCoordinateButton').addEventListener('click', function() {
+    last_lat = new_lat;
+    last_lon = new_lon;
+
+    socket.send('保存当前坐标');
 });
 
 // Function to send data to Android

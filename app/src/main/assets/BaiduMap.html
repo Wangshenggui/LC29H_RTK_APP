@@ -24,6 +24,10 @@
         <span class="text-lon">经度: 0</span>
         <span class="text-lat">纬度: 0</span>
     </div>
+    <div class="lonlatdms-container">
+        <span class="text-londms">    106.36</span>
+        <span class="text-latdms">    26.23</span>
+    </div>
     <div class="speed-container">
         <span class="text-speedms">速度(m/s): 0</span>
         <span class="text-speedkmh">速度(km/h): 0</span>
@@ -36,9 +40,14 @@
         <span class="text-altitude">海拔高度: </span>
         <span class="text-HDOP">水平精度因子: </span>
     </div>
+    <div class="Distance-container">
+        <span class="text-Distance">距离: 0 m</span>
+    </div>
 
-    <span class="text-Distance">距离: 0 m</span>
-    <button id="StartRangingButton">开始测距</button>
+    <div id="buttonContainer">
+        <button id="StartRangingButton">开始测距</button>
+        <button id="SaveCoordinateButton">保存坐标</button>
+    </div>
 </div>
 
 <!-- 引入百度地图API JavaScript -->

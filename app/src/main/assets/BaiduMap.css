@@ -10,8 +10,8 @@ html, body {
 .map-container {
     position: relative; /* 确保子元素使用绝对定位时相对于此容器定位 */
     width: 100%; /* 宽度100%，铺满父容器 */
-    height: 68%; /* 高度固定为300像素 */
-    margin-bottom: 1em; /* 底部外边距为1em */
+    height: 60%; /* 高度固定为300像素 */
+    margin-bottom: 0em; /* 底部外边距为1em */
 }
 
 /* 地图样式 */
@@ -44,7 +44,7 @@ html, body {
     top: calc(10% + 35px); /* 按钮顶部距离其父元素顶部的距离，比上一个按钮稍微下移 */
 }
 
-.lonlat-container, .speed-container, .statusHCSDS-container, .altitude-container {
+.lonlat-container, .speed-container, .statusHCSDS-container, .altitude-container, .lonlatdms-container, .Distance-container {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -54,26 +54,35 @@ html, body {
     background-color: #f0f0f0;
 }
 
-.text-lon, .text-lat, .text-speedms, .text-speedkmh, .text-status, .text-HCSDS, .text-altitude, .text-HDOP {
+.text-lon, .text-lat, .text-speedms, .text-speedkmh, .text-status, .text-HCSDS, .text-altitude, .text-HDOP, .text-londms, .text-latdms {
     width: 50%;
     text-align: left; /* 左对齐文本 */
     font-size: 16px; /* 根据需要调整字体大小 */
     margin: 0; /* 清除默认的外边距 */
 }
 
-/* 自定义 StartRangingButton 样式 */
-#StartRangingButton {
+/* 容器样式 */
+#buttonContainer {
+    display: flex; /* 使用 Flexbox 布局 */
+    width: 100%; /* 容器宽度占据父元素的全部宽度 */
+    gap: 10px; /* 按钮之间的间隔 */
+    box-sizing: border-box; /* 包括内边距和边框在内的总宽度 */
+}
+
+/* 按钮样式 */
+#buttonContainer button {
+    flex: 1; /* 每个按钮占据容器宽度的一半 */
     background-color: #28a745; /* 按钮背景颜色 */
     border-radius: 8px; /* 更圆的圆角 */
-    padding: 12px 24px; /* 更大的内边距 */
+    padding: 10px; /* 内边距 */
     font-weight: bold; /* 字体加粗 */
     color: #fff; /* 文字颜色 */
     border: none; /* 去除默认边框 */
     cursor: pointer; /* 鼠标悬停时显示手型 */
     font-size: 16px; /* 字体大小 */
-    margin: 10px 0; /* 上下外边距 */
-    display: block; /* 使按钮为块级元素，自动占满父容器的宽度 */
+    margin: 0; /* 去除默认外边距 */
     text-align: center; /* 文字居中对齐 */
+    box-sizing: border-box; /* 包括内边距和边框在内的总宽度 */
 }
 
 /* StartRangingButton 悬停和点击样式 */
@@ -85,5 +94,16 @@ html, body {
     background-color: #1e7e34; /* 点击时的背景颜色 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 减小阴影 */
 }
+
+/* SaveCoordinateButton 悬停和点击样式 */
+#SaveCoordinateButton:hover {
+    background-color: #218838; /* 悬停时的背景颜色 */
+}
+
+#SaveCoordinateButton:active {
+    background-color: #1e7e34; /* 点击时的背景颜色 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 减小阴影 */
+}
+
 
 
