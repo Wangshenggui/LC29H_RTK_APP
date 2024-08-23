@@ -50,158 +50,96 @@ function connectWebSocket() {
     socket.onmessage = function(event) {
         console.log('Received message from server: ' + event.data);
 
-        // 尝试解析 JSON 数据
-        var data;
-        try {
-            data = JSON.parse(event.data);
-        } catch (e) {
-            console.error("Invalid JSON data:", e);
-            return;
-        }
+//        // 尝试解析 JSON 数据
+//        var data;
+//        try {
+//            data = JSON.parse(event.data);
+//        } catch (e) {
+//            console.error("Invalid JSON data:", e);
+//            return;
+//        }
+//
+//        // 解析 GGA 数据
+//        if (data.GGA) {
+//            var ggaSentence = data.GGA;
+//
+//            // 验证GGA数据的完整性
+//            if (isValidGGASentence(ggaSentence)) {
+//                var ggaData = parseGGA(ggaSentence);
+//                if (ggaData) {
+//                    // 更新 HTML 显示
+//                    document.querySelector('.text-lon').textContent = '经度: ' + ggaData.longitude.toFixed(11);
+//                    document.querySelector('.text-lat').textContent = '纬度: ' + ggaData.latitude.toFixed(11);
+//                    document.querySelector('.text-status').textContent = 'RTK状态: ' + ggaData.rtkState;
+//                    document.querySelector('.text-HCSDS').textContent = '卫星数量: ' + ggaData.satelliteCount;
+//                    document.querySelector('.text-altitude').textContent = '海拔高度: ' + ggaData.altitude + ' m';
+//                    document.querySelector('.text-HDOP').textContent = '水平精度因子: ' + ggaData.HDOP;
+//
+//                    const latitude = ggaData.latitude;
+//                    const longitude = ggaData.longitude;
+//
+//                    const latDMS = toDMS(latitude);
+//                    const lonDMS = toDMS(longitude);
+//                    document.querySelector('.text-londms').textContent = "----" + lonDMS;
+//                    document.querySelector('.text-latdms').textContent = "----" + latDMS;
+//
+//
+//                    new_lat = ggaData.latitude;
+//                    new_lon = ggaData.longitude;
+//
+//                    const distance = linearDistance(last_lat, last_lon, new_lat, new_lon);
+//                    document.querySelector('.text-Distance').textContent = '距离: ' + (1000 * distance).toFixed(10) + ' m';
+//
+//                    // 转换为 BD-09 坐标
+//                    var bd09 = wgs84ToBd09(new_lon, new_lat);
+//
+//                    // 添加新的点到轨迹点数组中，但只有当经纬度大于阈值时才添加
+//                    if (Math.abs(new_lon) > 0.0065 && Math.abs(new_lat) > 0.0065) {
+//                        var newPoint = new BMap.Point(bd09[0], bd09[1]);
+//                        points.push(newPoint);
+//
+//                        if (!mapIsBeingDragged) {
+//                            if (polyline) {
+//                                map.removeOverlay(polyline);
+//                            }
+//
+//                            polyline = new BMap.Polyline(points, { strokeColor: "red", strokeWeight: 6, strokeOpacity: 1 });
+//                            map.addOverlay(polyline);
+//
+//                            var newMarker = new BMap.Marker(newPoint);
+//                            newMarker.setIcon(new BMap.Icon('img/huaji.png', new BMap.Size(16, 45)));
+//
+//                            if (marker) {
+//                                map.removeOverlay(marker);
+//                            }
+//
+//                            map.addOverlay(newMarker);
+//                            marker = newMarker;
+//                            map.panTo(newPoint);
+//                        }
+//                    }
+//                }
+//            } else {
+//                console.error("Invalid GGA sentence");
+//            }
+//        }
 
-        // 解析 GGA 数据
-        if (data.GGA) {
-            var ggaSentence = data.GGA;
-
-            // 验证GGA数据的完整性
-            if (isValidGGASentence(ggaSentence)) {
-                var ggaData = parseGGA(ggaSentence);
-                if (ggaData) {
-                    // 更新 HTML 显示
-                    document.querySelector('.text-lon').textContent = '经度: ' + ggaData.longitude.toFixed(11);
-                    document.querySelector('.text-lat').textContent = '纬度: ' + ggaData.latitude.toFixed(11);
-                    document.querySelector('.text-status').textContent = 'RTK状态: ' + ggaData.rtkState;
-                    document.querySelector('.text-HCSDS').textContent = '卫星数量: ' + ggaData.satelliteCount;
-                    document.querySelector('.text-altitude').textContent = '海拔高度: ' + ggaData.altitude + ' m';
-                    document.querySelector('.text-HDOP').textContent = '水平精度因子: ' + ggaData.HDOP;
-
-                    const latitude = ggaData.latitude;
-                    const longitude = ggaData.longitude;
-
-                    const latDMS = toDMS(latitude);
-                    const lonDMS = toDMS(longitude);
-                    document.querySelector('.text-londms').textContent = "----" + lonDMS;
-                    document.querySelector('.text-latdms').textContent = "----" + latDMS;
-
-
-                    new_lat = ggaData.latitude;
-                    new_lon = ggaData.longitude;
-
-                    const distance = linearDistance(last_lat, last_lon, new_lat, new_lon);
-                    document.querySelector('.text-Distance').textContent = '距离: ' + (1000 * distance).toFixed(10) + ' m';
-
-                    // 转换为 BD-09 坐标
-                    var bd09 = wgs84ToBd09(new_lon, new_lat);
-
-                    // 添加新的点到轨迹点数组中，但只有当经纬度大于阈值时才添加
-                    if (Math.abs(new_lon) > 0.0065 && Math.abs(new_lat) > 0.0065) {
-                        var newPoint = new BMap.Point(bd09[0], bd09[1]);
-                        points.push(newPoint);
-
-                        if (!mapIsBeingDragged) {
-                            if (polyline) {
-                                map.removeOverlay(polyline);
-                            }
-
-                            polyline = new BMap.Polyline(points, { strokeColor: "red", strokeWeight: 6, strokeOpacity: 1 });
-                            map.addOverlay(polyline);
-
-                            var newMarker = new BMap.Marker(newPoint);
-                            newMarker.setIcon(new BMap.Icon('img/huaji.png', new BMap.Size(16, 45)));
-
-                            if (marker) {
-                                map.removeOverlay(marker);
-                            }
-
-                            map.addOverlay(newMarker);
-                            marker = newMarker;
-                            map.panTo(newPoint);
-                        }
-                    }
-                }
-            } else {
-                console.error("Invalid GGA sentence");
-            }
-        }
-
-        // 解析 RMC 数据
-        if (data.RMC) {
-            var rmcSentence = data.RMC;
-
-            // 验证RMC数据的完整性
-            if (isValidRMCSentence(rmcSentence)) {
-                var rmcData = parseRMC(rmcSentence);
-                if (rmcData) {
-                    document.querySelector('.text-speedms').textContent = '速度(m/s): ' + rmcData.speedms.toFixed(4);
-                    document.querySelector('.text-speedkmh').textContent = '速度(km/h): ' + (rmcData.speedms * 3.6).toFixed(3);
-                }
-            } else {
-                console.error("Invalid RMC sentence");
-            }
-        }
+//        // 解析 RMC 数据
+//        if (data.RMC) {
+//            var rmcSentence = data.RMC;
+//
+//            // 验证RMC数据的完整性
+//            if (isValidRMCSentence(rmcSentence)) {
+//                var rmcData = parseRMC(rmcSentence);
+//                if (rmcData) {
+//                    document.querySelector('.text-speedms').textContent = '速度(m/s): ' + rmcData.speedms.toFixed(4);
+//                    document.querySelector('.text-speedkmh').textContent = '速度(km/h): ' + (rmcData.speedms * 3.6).toFixed(3);
+//                }
+//            } else {
+//                console.error("Invalid RMC sentence");
+//            }
+//        }
     };
-
-    // 将十进制度坐标转换为度分秒格式
-    function toDMS(decimalDegrees) {
-        // 计算度数
-        const degrees = Math.floor(decimalDegrees);
-        // 计算分钟
-        const minutesDecimal = (decimalDegrees - degrees) * 60;
-        const minutes = Math.floor(minutesDecimal);
-        // 计算秒数
-        const seconds = (minutesDecimal - minutes) * 60;
-
-        // 返回格式化的度分秒字符串
-        return `${degrees}°${minutes}'${seconds.toFixed(4)}"`;
-    }
-
-    // 验证GGA语句的完整性
-    function isValidGGASentence(ggaSentence) {
-        return isValidNMEASentence(ggaSentence, 15);
-    }
-
-    // 验证RMC语句的完整性
-    function isValidRMCSentence(rmcSentence) {
-        return isValidNMEASentence(rmcSentence, 12);
-    }
-
-    // 通用的NMEA语句验证函数
-    function isValidNMEASentence(sentence, expectedFieldCount) {
-        // 检查是否以'$'开头并包含'*'
-        if (!sentence.startsWith('$') || sentence.indexOf('*') === -1) {
-            return false;
-        }
-
-        // 分离校验和部分
-        var parts = sentence.split('*');
-        if (parts.length !== 2) {
-            return false;
-        }
-
-        var sentenceWithoutChecksum = parts[0].substring(1); // 去除开头的 '$'
-        var checksum = parts[1].trim();
-
-        // 校验字段数量
-        var nmeaParts = sentenceWithoutChecksum.split(',');
-        if (nmeaParts.length < expectedFieldCount) {
-            return false;
-        }
-
-        // 验证校验和
-        var calculatedChecksum = calculateChecksum(sentenceWithoutChecksum);
-        return calculatedChecksum === checksum.toUpperCase();
-    }
-
-    // 计算校验和（XOR计算）
-    function calculateChecksum(sentence) {
-        var checksum = 0;
-        for (var i = 0; i < sentence.length; i++) {
-            checksum ^= sentence.charCodeAt(i);
-        }
-        return checksum.toString(16).toUpperCase().padStart(2, '0'); // 返回两位十六进制数
-    }
-
-
 
     socket.onclose = function(event) {
         console.log('WebSocket is closed. Reconnecting...');
@@ -217,6 +155,66 @@ function connectWebSocket() {
 
 // 初始连接
 connectWebSocket();
+
+// 将十进制度坐标转换为度分秒格式
+function toDMS(decimalDegrees) {
+    // 计算度数
+    const degrees = Math.floor(decimalDegrees);
+    // 计算分钟
+    const minutesDecimal = (decimalDegrees - degrees) * 60;
+    const minutes = Math.floor(minutesDecimal);
+    // 计算秒数
+    const seconds = (minutesDecimal - minutes) * 60;
+
+    // 返回格式化的度分秒字符串
+    return `${degrees}°${minutes}'${seconds.toFixed(4)}"`;
+}
+
+// 验证GGA语句的完整性
+function isValidGGASentence(ggaSentence) {
+    return isValidNMEASentence(ggaSentence, 15);
+}
+
+// 验证RMC语句的完整性
+function isValidRMCSentence(rmcSentence) {
+    return isValidNMEASentence(rmcSentence, 12);
+}
+
+// 通用的NMEA语句验证函数
+function isValidNMEASentence(sentence, expectedFieldCount) {
+    // 检查是否以'$'开头并包含'*'
+    if (!sentence.startsWith('$') || sentence.indexOf('*') === -1) {
+        return false;
+    }
+
+    // 分离校验和部分
+    var parts = sentence.split('*');
+    if (parts.length !== 2) {
+        return false;
+    }
+
+    var sentenceWithoutChecksum = parts[0].substring(1); // 去除开头的 '$'
+    var checksum = parts[1].trim();
+
+    // 校验字段数量
+    var nmeaParts = sentenceWithoutChecksum.split(',');
+    if (nmeaParts.length < expectedFieldCount) {
+        return false;
+    }
+
+    // 验证校验和
+    var calculatedChecksum = calculateChecksum(sentenceWithoutChecksum);
+    return calculatedChecksum === checksum.toUpperCase();
+}
+
+// 计算校验和（XOR计算）
+function calculateChecksum(sentence) {
+    var checksum = 0;
+    for (var i = 0; i < sentence.length; i++) {
+        checksum ^= sentence.charCodeAt(i);
+    }
+    return checksum.toString(16).toUpperCase().padStart(2, '0'); // 返回两位十六进制数
+}
 
 // 解析 GGA 数据
 function parseGGA(ggaSentence) {
@@ -420,6 +418,94 @@ function sendDataToAndroid(data) {
 // Function to handle data received from Android
 function receiveDataFromAndroid(message) {
     console.log("Received message from Android:", message);
+
+    // 尝试解析 JSON 数据
+    var data;
+    try {
+        data = JSON.parse(message);
+    } catch (e) {
+        console.error("Invalid JSON data:", e);
+        return;
+    }
+
+    // 解析 GGA 数据
+    if (data.GGA) {
+        var ggaSentence = data.GGA;
+        // 验证GGA数据的完整性
+        if (isValidGGASentence(ggaSentence)) {
+            var ggaData = parseGGA(ggaSentence);
+            if (ggaData) {
+                // 更新 HTML 显示
+                document.querySelector('.text-lon').textContent = '经度: ' + ggaData.longitude.toFixed(11);
+                document.querySelector('.text-lat').textContent = '纬度: ' + ggaData.latitude.toFixed(11);
+                document.querySelector('.text-status').textContent = 'RTK状态: ' + ggaData.rtkState;
+                document.querySelector('.text-HCSDS').textContent = '卫星数量: ' + ggaData.satelliteCount;
+                document.querySelector('.text-altitude').textContent = '海拔高度: ' + ggaData.altitude + ' m';
+                document.querySelector('.text-HDOP').textContent = '水平精度因子: ' + ggaData.HDOP;
+
+                const latitude = ggaData.latitude;
+                const longitude = ggaData.longitude;
+
+                const latDMS = toDMS(latitude);
+                const lonDMS = toDMS(longitude);
+                document.querySelector('.text-londms').textContent = "----" + lonDMS;
+                document.querySelector('.text-latdms').textContent = "----" + latDMS;
+
+
+                new_lat = ggaData.latitude;
+                new_lon = ggaData.longitude;
+
+                const distance = linearDistance(last_lat, last_lon, new_lat, new_lon);
+                document.querySelector('.text-Distance').textContent = '距离: ' + (1000 * distance).toFixed(10) + ' m';
+
+                // 转换为 BD-09 坐标
+                var bd09 = wgs84ToBd09(new_lon, new_lat);
+
+                // 添加新的点到轨迹点数组中，但只有当经纬度大于阈值时才添加
+                if (Math.abs(new_lon) > 0.0065 && Math.abs(new_lat) > 0.0065) {
+                    var newPoint = new BMap.Point(bd09[0], bd09[1]);
+                    points.push(newPoint);
+
+                    if (!mapIsBeingDragged) {
+                        if (polyline) {
+                            map.removeOverlay(polyline);
+                        }
+
+                        polyline = new BMap.Polyline(points, { strokeColor: "red", strokeWeight: 6, strokeOpacity: 1 });
+                        map.addOverlay(polyline);
+
+                        var newMarker = new BMap.Marker(newPoint);
+                        newMarker.setIcon(new BMap.Icon('img/huaji.png', new BMap.Size(16, 45)));
+
+                        if (marker) {
+                            map.removeOverlay(marker);
+                        }
+
+                        map.addOverlay(newMarker);
+                        marker = newMarker;
+                        map.panTo(newPoint);
+                    }
+                }
+            }
+        } else {
+            console.error("Invalid GGA sentence");
+        }
+    }
+    //解析 RMC 数据
+    if (data.RMC) {
+        var rmcSentence = data.RMC;
+
+        // 验证RMC数据的完整性
+        if (isValidRMCSentence(rmcSentence)) {
+            var rmcData = parseRMC(rmcSentence);
+            if (rmcData) {
+                document.querySelector('.text-speedms').textContent = '速度(m/s): ' + rmcData.speedms.toFixed(4);
+                document.querySelector('.text-speedkmh').textContent = '速度(km/h): ' + (rmcData.speedms * 3.6).toFixed(3);
+            }
+        } else {
+            console.error("Invalid RMC sentence");
+        }
+    }
 }
 
 

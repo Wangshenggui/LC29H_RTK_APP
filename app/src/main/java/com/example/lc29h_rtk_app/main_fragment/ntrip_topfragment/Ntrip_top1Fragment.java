@@ -129,43 +129,43 @@ public class Ntrip_top1Fragment extends Fragment {
             public void run() {
                 // Your periodic task
                 String message = MainActivity.getReadGGAString() + "\r\n";
-                String messageWebGGA = MainActivity.getReadGGAString();
-                String messageWebRMC = MainActivity.getReadRMCString();
+//                String messageWebGGA = MainActivity.getReadGGAString();
+//                String messageWebRMC = MainActivity.getReadRMCString();
 
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
-
-                        JSONObject data = new JSONObject();
-                        String[] variables = {"GGA"};
-
-                        try {
-                            data.put(variables[0], messageWebGGA);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        String jsonMessage = data.toString();
-
-                        Intent intent = new Intent("SendWebSocketMessage");
-                        intent.putExtra("message", jsonMessage);
-                        requireContext().sendBroadcast(intent);
-
-
-                        JSONObject data1 = new JSONObject();
-                        String[] variables1 = {"RMC"};
-
-                        try {
-                            data1.put(variables1[0], messageWebRMC);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        jsonMessage = data1.toString();
-
-                        intent = new Intent("SendWebSocketMessage");
-                        intent.putExtra("message", jsonMessage);
-                        requireContext().sendBroadcast(intent);
+//
+//                        JSONObject data = new JSONObject();
+//                        String[] variables = {"GGA"};
+//
+//                        try {
+//                            data.put(variables[0], messageWebGGA);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        String jsonMessage = data.toString();
+//
+//                        Intent intent = new Intent("SendWebSocketMessage");
+//                        intent.putExtra("message", jsonMessage);
+//                        requireContext().sendBroadcast(intent);
+//
+//
+//                        JSONObject data1 = new JSONObject();
+//                        String[] variables1 = {"RMC"};
+//
+//                        try {
+//                            data1.put(variables1[0], messageWebRMC);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        jsonMessage = data1.toString();
+//
+//                        intent = new Intent("SendWebSocketMessage");
+//                        intent.putExtra("message", jsonMessage);
+//                        requireContext().sendBroadcast(intent);
                     }
                 }
 
