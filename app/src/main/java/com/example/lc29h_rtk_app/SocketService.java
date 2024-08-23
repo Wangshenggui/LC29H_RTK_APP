@@ -152,7 +152,7 @@ public class SocketService extends Service {
                         MainActivity.outputStream.flush();
 
                         // 显示接收的消息长度
-                        showToast("Received data, length: " + rawMessage.length);
+//                        showToast("Received data, length: " + rawMessage.length);
 
                         // 定义预期的消息字符串
                         String expectedMessageOK = "ICY 200 OK\r\n";
