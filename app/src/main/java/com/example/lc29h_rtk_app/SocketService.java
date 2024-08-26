@@ -1,5 +1,7 @@
 package com.example.lc29h_rtk_app;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,12 +16,15 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +32,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SocketService extends Service {
 
     private static final String TAG = "SocketService";
+
+    String originalInput;
+    String CORSAccountText;
+    String CORSPasswordText;
+    String MountPointText;
 
     private final IBinder binder = new LocalBinder();
     private Socket socket;
@@ -46,6 +56,30 @@ public class SocketService extends Service {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
         startForegroundService();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String corsAccount = intent.getStringExtra("CORSAccount");
+        String corsPassword = intent.getStringExtra("CORSPassword");
+        String mountPoint = intent.getStringExtra("MountPoint");
+        // 使用 corsAccount
+        // 检查是否获取到数据
+        if (corsAccount != null) {
+            // 使用 corsAccount 进行你需要的操作
+            CORSAccountText = corsAccount;
+        }
+        if (corsPassword != null) {
+            // 使用 corsPassword 进行你需要的操作
+            CORSPasswordText = corsPassword;
+        }
+        if (mountPoint != null) {
+            // 使用 MountPoint 进行你需要的操作
+            MountPointText = mountPoint;
+        }
+
+
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -93,6 +127,27 @@ public class SocketService extends Service {
                     //CORS服务器已连接
                     MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.the_cors_server_is_connected);
                     mediaPlayer.start();
+
+                    if(MainActivity.getBluetoothConFlag()){
+                        originalInput = CORSAccountText + ":" + CORSPasswordText;
+                        // 编码字符串
+                        String encodedString = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                        }
+
+                        String message = "GET /" +
+                                MountPointText +
+                                " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+                                encodedString +
+                                "\r\n\r\n";
+
+                        if (MainActivity.isBound) {
+                            MainActivity.socketService.sendMessage(message);
+                        }
+                    }else{
+                        MainActivity.showToast(this,"蓝牙未连接");
+                    }
 
                     readFromSocket();
                     break;  // 连接成功后退出循环
@@ -162,6 +217,15 @@ public class SocketService extends Service {
                         if (receivedMessage.equals(expectedMessageOK)) {
                             MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.cors_http_request_succeeded_rocedure);
                             mediaPlayer.start();
+
+                            //自动发送数据
+                            String message = MainActivity.getReadGGAString() + "\r\n";
+
+                            if (MainActivity.isBound) {
+                                MainActivity.socketService.sendMessage(message);
+                            }
+
+                            Ntrip_top1Fragment.NtripStartFlag=!Ntrip_top1Fragment.NtripStartFlag;
                         } else if (receivedMessage.equals(expectedMessageERROR)){
                             MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.account_or_password_incorrec);
                             mediaPlayer.start();

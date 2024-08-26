@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
+import com.example.lc29h_rtk_app.SocketService;
 import com.example.lc29h_rtk_app.WebSocketService;
 
 import org.json.JSONException;
@@ -61,8 +62,7 @@ public class Ntrip_top1Fragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     Button ConnectCORSserverButton;
-    Button SendCORSHTTPButton;
-    Button sendggaButton;
+//    Button SendCORSHTTPButton;
     EditText CORSip;
     EditText CORSport;
     Spinner CORSmount;
@@ -74,7 +74,7 @@ public class Ntrip_top1Fragment extends Fragment {
 
     String MountPoint=" ";
 
-    boolean NtripStartFlag= false;
+    public static boolean NtripStartFlag= false;
 
 
     private WebSocketServiceReceiver webSocketReceiver;
@@ -135,37 +135,8 @@ public class Ntrip_top1Fragment extends Fragment {
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
-//
-//                        JSONObject data = new JSONObject();
-//                        String[] variables = {"GGA"};
-//
-//                        try {
-//                            data.put(variables[0], messageWebGGA);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        String jsonMessage = data.toString();
-//
-//                        Intent intent = new Intent("SendWebSocketMessage");
-//                        intent.putExtra("message", jsonMessage);
-//                        requireContext().sendBroadcast(intent);
-//
-//
-//                        JSONObject data1 = new JSONObject();
-//                        String[] variables1 = {"RMC"};
-//
-//                        try {
-//                            data1.put(variables1[0], messageWebRMC);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        jsonMessage = data1.toString();
-//
-//                        intent = new Intent("SendWebSocketMessage");
-//                        intent.putExtra("message", jsonMessage);
-//                        requireContext().sendBroadcast(intent);
+
+                        MainActivity.showToast(getActivity(),message);
                     }
                 }
 
@@ -183,8 +154,7 @@ public class Ntrip_top1Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_ntrip_top1, container, false);
 
         ConnectCORSserverButton = view.findViewById(R.id.ConnectCORSserverButton);
-        SendCORSHTTPButton = view.findViewById(R.id.SendCORSHTTPButton);
-        sendggaButton = view.findViewById(R.id.sendggaButton);
+//        SendCORSHTTPButton = view.findViewById(R.id.SendCORSHTTPButton);
         CORSip = view.findViewById(R.id.CORSip);
         CORSport = view.findViewById(R.id.CORSport);
         CORSmount = view.findViewById(R.id.CORSmount);
@@ -462,49 +432,50 @@ public class Ntrip_top1Fragment extends Fragment {
                         MainActivity.socketService.connectToServer(ipAddress, portNumber);
                     }
                 }
+
+                String corsAccount = CORSAccount.getText().toString();
+                String corsPassword = CORSPassword.getText().toString();
+                String mountPoint = MountPoint;
+
+                // 创建 Intent 对象
+                Intent intent = new Intent(getActivity(), SocketService.class);
+
+                // 将两个字符串放入 Intent
+                intent.putExtra("CORSAccount", corsAccount);
+                intent.putExtra("CORSPassword", corsPassword);
+                intent.putExtra("MountPoint", mountPoint);
+
+                // 启动 Service
+                Context context = getActivity(); // 或者 getContext()
+                context.startService(intent);
             }
         });
 
-        SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(MainActivity.getBluetoothConFlag()){
-                    String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
-                    // 编码字符串
-                    String encodedString = null;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-                    }
-
-                    String message = "GET /" +
-                            MountPoint +
-                            " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                            encodedString +
-                            "\r\n\r\n";
-
-                    if (MainActivity.isBound) {
-                        MainActivity.socketService.sendMessage(message);
-                    }
-                }else{
-                    MainActivity.showToast(getActivity(),"蓝牙未连接");
-                }
-            }
-        });
-
-        sendggaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = MainActivity.getReadGGAString() + "\r\n";
-
-//                showGGA.setText(message);
-
-                if (MainActivity.isBound) {
-                    MainActivity.socketService.sendMessage(message);
-                }
-
-                NtripStartFlag=!NtripStartFlag;
-            }
-        });
+//        SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(MainActivity.getBluetoothConFlag()){
+//                    String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
+//                    // 编码字符串
+//                    String encodedString = null;
+//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                        encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+//                    }
+//
+//                    String message = "GET /" +
+//                            MountPoint +
+//                            " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+//                            encodedString +
+//                            "\r\n\r\n";
+//
+//                    if (MainActivity.isBound) {
+//                        MainActivity.socketService.sendMessage(message);
+//                    }
+//                }else{
+//                    MainActivity.showToast(getActivity(),"蓝牙未连接");
+//                }
+//            }
+//        });
 
         // 创建一个选项列表（数据源）
         List<String> categories = new ArrayList<>();

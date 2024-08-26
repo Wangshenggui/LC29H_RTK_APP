@@ -27,6 +27,7 @@ import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.FloatingWidgetService;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.example.lc29h_rtk_app.main_fragment.WebFragment;
+import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.InputStream;
@@ -191,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
         // 延迟加载其他Fragment以避免崩溃
         new Handler().postDelayed(this::loadOtherFragments, 500);
 
+
         // 检查电池优化设置
         checkBatteryOptimization();
     }
@@ -332,4 +334,5 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
 }

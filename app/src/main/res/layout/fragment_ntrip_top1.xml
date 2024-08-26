@@ -104,19 +104,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="2">
-        <Button
-            android:id="@+id/SendCORSHTTPButton"
-            android:text="发送HTTP请求"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+<!--        <Button-->
+<!--            android:id="@+id/SendCORSHTTPButton"-->
+<!--            android:text="发送HTTP请求"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"/>-->
 
-        <Button
-            android:id="@+id/sendggaButton"
-            android:text="开始转发RTCM"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
     </LinearLayout>
 
 
