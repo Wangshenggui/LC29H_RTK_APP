@@ -63,6 +63,7 @@ public class SocketService extends Service {
         String corsAccount = intent.getStringExtra("CORSAccount");
         String corsPassword = intent.getStringExtra("CORSPassword");
         String mountPoint = intent.getStringExtra("MountPoint");
+        String SocketClose = intent.getStringExtra("SocketClose");
         // 使用 corsAccount
         // 检查是否获取到数据
         if (corsAccount != null) {
@@ -76,6 +77,19 @@ public class SocketService extends Service {
         if (mountPoint != null) {
             // 使用 MountPoint 进行你需要的操作
             MountPointText = mountPoint;
+        }
+        if (SocketClose != null) {
+            if (socket != null && !socket.isClosed()) {
+                try {
+                    socket.close();  // 关闭Socket连接
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Ntrip_top1Fragment.NtripStartFlag=false;
+                MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.close_the_cors_connection);
+                mediaPlayer.start();
+                showToast("连接已关闭");
+            }
         }
 
 
@@ -106,11 +120,14 @@ public class SocketService extends Service {
             }
         }
 
-        Notification notification = new Notification.Builder(this, "socket_channel")
-                .setContentTitle("Socket Service")
-                .setContentText("Service is running in the background")
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .build();
+        Notification notification = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notification = new Notification.Builder(this, "socket_channel")
+                    .setContentTitle("Socket Service")
+                    .setContentText("Service is running in the background")
+                    .setSmallIcon(R.drawable.ic_launcher_background)
+                    .build();
+        }
 
         startForeground(1, notification);
     }
@@ -124,9 +141,6 @@ public class SocketService extends Service {
                     inputStream = socket.getInputStream();
 
                     showToast("已连接服务器");
-                    //CORS服务器已连接
-                    MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.the_cors_server_is_connected);
-                    mediaPlayer.start();
 
                     if(MainActivity.getBluetoothConFlag()){
                         originalInput = CORSAccountText + ":" + CORSPasswordText;
@@ -158,7 +172,7 @@ public class SocketService extends Service {
 
                     // 等待5秒后重新尝试连接
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException interruptedException) {
                         interruptedException.printStackTrace();
                     }
@@ -215,7 +229,7 @@ public class SocketService extends Service {
 
                         // 比较接收到的消息与预期消息
                         if (receivedMessage.equals(expectedMessageOK)) {
-                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.cors_http_request_succeeded_rocedure);
+                            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.cors_request_succeeded_rocedure);
                             mediaPlayer.start();
 
                             //自动发送数据

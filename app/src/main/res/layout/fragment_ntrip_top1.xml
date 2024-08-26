@@ -38,28 +38,13 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/CORSport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <EditText
-            android:id="@+id/CORSport"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="输入端口号"
-            android:inputType="number"
-            android:layout_weight="1.4"
-            android:ems="10" />
-
-        <Button
-            android:id="@+id/ConnectCORSserverButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.6"
-            android:text="连接CORS"
-            android:ems="10"/>
-    </LinearLayout>
+        android:hint="输入端口号"
+        android:inputType="number"
+        android:ems="10" />
 
     <EditText
         android:id="@+id/CORSAccount"
@@ -99,19 +84,12 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/ConnectCORSserverButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-<!--        <Button-->
-<!--            android:id="@+id/SendCORSHTTPButton"-->
-<!--            android:text="发送HTTP请求"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"/>-->
-
-    </LinearLayout>
+        android:text="打开CORS连接"
+        android:ems="10"/>
 
 
 </LinearLayout>

@@ -62,7 +62,6 @@ public class Ntrip_top1Fragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     Button ConnectCORSserverButton;
-//    Button SendCORSHTTPButton;
     EditText CORSip;
     EditText CORSport;
     Spinner CORSmount;
@@ -129,14 +128,9 @@ public class Ntrip_top1Fragment extends Fragment {
             public void run() {
                 // Your periodic task
                 String message = MainActivity.getReadGGAString() + "\r\n";
-//                String messageWebGGA = MainActivity.getReadGGAString();
-//                String messageWebRMC = MainActivity.getReadRMCString();
-
                 if (MainActivity.isBound) {
                     if(message.length()>50 && NtripStartFlag){
                         MainActivity.socketService.sendMessage(message);
-
-                        MainActivity.showToast(getActivity(),message);
                     }
                 }
 
@@ -154,7 +148,6 @@ public class Ntrip_top1Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_ntrip_top1, container, false);
 
         ConnectCORSserverButton = view.findViewById(R.id.ConnectCORSserverButton);
-//        SendCORSHTTPButton = view.findViewById(R.id.SendCORSHTTPButton);
         CORSip = view.findViewById(R.id.CORSip);
         CORSport = view.findViewById(R.id.CORSport);
         CORSmount = view.findViewById(R.id.CORSmount);
@@ -420,62 +413,51 @@ public class Ntrip_top1Fragment extends Fragment {
         });
 
         ConnectCORSserverButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                String ipAddress = CORSip.getText().toString();
-                String portString = CORSport.getText().toString();
-                if (ipAddress.isEmpty() || portString.isEmpty()) {
-                    MainActivity.showToast(getActivity(), "请输入IP地址");
-                } else {
-                    int portNumber = Integer.parseInt(portString);
-                    if (MainActivity.isBound) {
-                        MainActivity.socketService.connectToServer(ipAddress, portNumber);
-                    }
-                }
-
-                String corsAccount = CORSAccount.getText().toString();
-                String corsPassword = CORSPassword.getText().toString();
-                String mountPoint = MountPoint;
-
                 // 创建 Intent 对象
                 Intent intent = new Intent(getActivity(), SocketService.class);
 
-                // 将两个字符串放入 Intent
-                intent.putExtra("CORSAccount", corsAccount);
-                intent.putExtra("CORSPassword", corsPassword);
-                intent.putExtra("MountPoint", mountPoint);
+                String expectedMessage = "打开CORS连接";
+                String text = ConnectCORSserverButton.getText().toString();
+                if(text.equals(expectedMessage)){
+                    //进行连接操作
+                    ConnectCORSserverButton.setText("关闭Socket连接");
+                    String ipAddress = CORSip.getText().toString();
+                    String portString = CORSport.getText().toString();
+                    if (ipAddress.isEmpty() || portString.isEmpty()) {
+                        MainActivity.showToast(getActivity(), "请输入IP地址");
+                    } else {
+                        int portNumber = Integer.parseInt(portString);
+                        if (MainActivity.isBound) {
+                            MainActivity.socketService.connectToServer(ipAddress, portNumber);
+                        }
+                    }
 
-                // 启动 Service
-                Context context = getActivity(); // 或者 getContext()
-                context.startService(intent);
+                    String corsAccount = CORSAccount.getText().toString();
+                    String corsPassword = CORSPassword.getText().toString();
+                    String mountPoint = MountPoint;
+
+                    // 将两个字符串放入 Intent
+                    intent.putExtra("CORSAccount", corsAccount);
+                    intent.putExtra("CORSPassword", corsPassword);
+                    intent.putExtra("MountPoint", mountPoint);
+
+                    // 启动 Service
+                    Context context = getActivity(); // 或者 getContext()
+                    context.startService(intent);
+                } else{
+                    ConnectCORSserverButton.setText("打开CORS连接");
+
+                    intent.putExtra("SocketClose", "SocketClose");
+
+                    // 启动 Service
+                    Context context = getActivity(); // 或者 getContext()
+                    context.startService(intent);
+                }
             }
         });
-
-//        SendCORSHTTPButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(MainActivity.getBluetoothConFlag()){
-//                    String originalInput = CORSAccount.getText().toString() + ":" + CORSPassword.getText().toString();
-//                    // 编码字符串
-//                    String encodedString = null;
-//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                        encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-//                    }
-//
-//                    String message = "GET /" +
-//                            MountPoint +
-//                            " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-//                            encodedString +
-//                            "\r\n\r\n";
-//
-//                    if (MainActivity.isBound) {
-//                        MainActivity.socketService.sendMessage(message);
-//                    }
-//                }else{
-//                    MainActivity.showToast(getActivity(),"蓝牙未连接");
-//                }
-//            }
-//        });
 
         // 创建一个选项列表（数据源）
         List<String> categories = new ArrayList<>();
