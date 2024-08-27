@@ -23,15 +23,10 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.lc29h_rtk_app.MainActivity;
 import com.example.lc29h_rtk_app.R;
 import com.example.lc29h_rtk_app.SocketService;
-import com.example.lc29h_rtk_app.WebSocketService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,13 +36,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.BufferedWriter;
 
 /**
  * A simple {@link Fragment} subclass.

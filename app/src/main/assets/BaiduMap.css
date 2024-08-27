@@ -36,12 +36,12 @@ html, body {
 
 /* 居中地图按钮 */
 #CenterMapButton {
-    top: 10%; /* 按钮顶部距离其父元素顶部的距离 */
+    top: 15%; /* 按钮顶部距离其父元素顶部的距离 */
 }
 
 /* 清除地图按钮 */
 #ClearMapButton {
-    top: calc(10% + 35px); /* 按钮顶部距离其父元素顶部的距离，比上一个按钮稍微下移 */
+    top: calc(15% + 35px); /* 按钮顶部距离其父元素顶部的距离，比上一个按钮稍微下移 */
 }
 
 .lonlat-container, .speed-container, .statusHCSDS-container, .altitude-container, .lonlatdms-container, .Distance-container {

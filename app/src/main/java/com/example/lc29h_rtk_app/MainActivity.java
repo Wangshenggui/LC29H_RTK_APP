@@ -202,10 +202,6 @@ public class MainActivity extends AppCompatActivity {
         Intent socketServiceIntent = new Intent(this, SocketService.class);
         startService(socketServiceIntent);
 
-        // 启动WebSocket服务
-        Intent webSocketServiceIntent = new Intent(this, WebSocketService.class);
-        startService(webSocketServiceIntent);
-
         // 检查并请求悬浮控件权限
         if (!Settings.canDrawOverlays(this)) {
             requestOverlayPermission();
