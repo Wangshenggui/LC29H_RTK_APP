@@ -395,15 +395,18 @@ function linearDistance(lat1, lon1, lat2, lon2) {
 document.getElementById('StartRangingButton').addEventListener('click', function() {
     last_lat = new_lat;
     last_lon = new_lon;
-
-    sendDataToAndroid('点击你');
 });
 
 document.getElementById('SaveCoordinateButton').addEventListener('click', function() {
-    last_lat = new_lat;
-    last_lon = new_lon;
-
-    socket.send('保存当前坐标');
+    // 检查输入是否有效
+    if (!isNaN(new_lon) && !isNaN(new_lat)) {
+        // 创建要发送的消息对象
+        const message = JSON.stringify({ sLon: new_lon, sLat: new_lat });
+        // 发送消息
+        socket.send(message);
+    } else {
+        console.error('Invalid longitude or latitude value');
+    }
 });
 
 // Function to send data to Android
@@ -433,6 +436,9 @@ function receiveDataFromAndroid(message) {
         var ggaSentence = data.GGA;
         // 验证GGA数据的完整性
         if (isValidGGASentence(ggaSentence)) {
+
+            socket.send(message);
+
             var ggaData = parseGGA(ggaSentence);
             if (ggaData) {
                 // 更新 HTML 显示
@@ -497,6 +503,9 @@ function receiveDataFromAndroid(message) {
 
         // 验证RMC数据的完整性
         if (isValidRMCSentence(rmcSentence)) {
+
+            socket.send(message);
+
             var rmcData = parseRMC(rmcSentence);
             if (rmcData) {
                 document.querySelector('.text-speedms').textContent = '速度(m/s): ' + rmcData.speedms.toFixed(4);
