@@ -1,12 +1,13 @@
 package com.example.lc29h_rtk_app.main_fragment.web_topFragment;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.lc29h_rtk_app.R;
 
@@ -17,12 +18,9 @@ import com.example.lc29h_rtk_app.R;
  */
 public class Web_top2Fragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -30,15 +28,6 @@ public class Web_top2Fragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Web_top2Fragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static Web_top2Fragment newInstance(String param1, String param2) {
         Web_top2Fragment fragment = new Web_top2Fragment();
         Bundle args = new Bundle();
@@ -61,6 +50,19 @@ public class Web_top2Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_web_top2, container, false);
+        View view = inflater.inflate(R.layout.fragment_web_top2, container, false);
+
+        Button downloadButton = view.findViewById(R.id.downloadButton);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to open the URL in a browser
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("http://47.109.46.41/app-release.apk"));
+                startActivity(intent);
+            }
+        });
+
+        return view;
     }
 }
