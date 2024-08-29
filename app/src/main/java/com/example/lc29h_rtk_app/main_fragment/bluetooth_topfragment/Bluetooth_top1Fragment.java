@@ -6,7 +6,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,7 +34,6 @@ import com.example.lc29h_rtk_app.R;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,20 +49,40 @@ public class Bluetooth_top1Fragment extends Fragment {
     private String mParam2;
 
     // Bluetooth operation variables
-    ListView BtList = null;
-    Intent intent = null;
-    BluetoothAdapter bluetoothAdapter = null;
-    List<String> devicesNames = new ArrayList<>();
-    ArrayList<BluetoothDevice> readyDevices = null;
-    ArrayAdapter<String> btNames = null;
+    private ListView BtList = null;
+    private BluetoothAdapter bluetoothAdapter = null;
+    private List<String> devicesNames = new ArrayList<>();
+    private ArrayList<BluetoothDevice> readyDevices = null;
+    private ArrayAdapter<String> btNames = null;
+    private Button SearchBluetoothButton;
+
 
     // Custom thread variables
-    static com.example.lc29h_rtk_app.BtThread.ConnectThread connectThread = null;
-    static com.example.lc29h_rtk_app.BtThread.ConnectedThread connectedThread = null;
+    private static com.example.lc29h_rtk_app.BtThread.ConnectThread connectThread = null;
+    private static com.example.lc29h_rtk_app.BtThread.ConnectedThread connectedThread = null;
 
     // Timer-related variables
     private Handler timerHandler;
     private Runnable timerRunnable;
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // When a device is found
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device != null && !readyDevices.contains(device)) {
+                    readyDevices.add(device);
+                    devicesNames.add(device.getName() + "\n" + device.getAddress());
+                    btNames.notifyDataSetChanged();
+                }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                Toast.makeText(getActivity(), "搜索完成", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     public static Bluetooth_top1Fragment newInstance(String param1, String param2) {
         Bluetooth_top1Fragment fragment = new Bluetooth_top1Fragment();
@@ -91,29 +114,23 @@ public class Bluetooth_top1Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_bluetooth_top1, container, false);
 
         BtList = view.findViewById(R.id.BtList);
+        SearchBluetoothButton = view.findViewById(R.id.SearchBluetoothButton);  // 初始化按钮控件
 
         // Initialize Bluetooth adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-            intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(intent, 1);
-        }
-        @SuppressLint("MissingPermission")
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         readyDevices = new ArrayList<>();
-        if (pairedDevices != null && pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                readyDevices.add(device);
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // Request permissions if not granted
-                }
-                devicesNames.add(device.getName());
+        devicesNames = new ArrayList<>();
+        btNames = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, devicesNames);
+        BtList.setAdapter(btNames);
+
+
+        // 设置按钮点击事件监听器
+        SearchBluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performSearch();  // 调用搜索蓝牙设备的方法
             }
-            ArrayAdapter<String> btNames = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, devicesNames);
-            BtList.setAdapter(btNames);
-        } else {
-            Toast.makeText(getActivity(), "没有设备已经配对！", Toast.LENGTH_SHORT).show();
-        }
+        });
 
         BtList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -163,7 +180,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                         connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
 
                         //播报蓝牙已连接
-                        MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(),R.raw.bluetooth_connected);
+                        MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), R.raw.bluetooth_connected);
                         mediaPlayer.start();
 
                         break;
@@ -183,16 +200,40 @@ public class Bluetooth_top1Fragment extends Fragment {
             public void run() {
                 // Timer task code here
                 // For example, update UI or perform periodic checks
-                // Example: Toast message
-//                MainActivity.showToast(getActivity(),MainActivity.getReadGGAString());
 
                 // Schedule the next execution
-                timerHandler.postDelayed(this, 1000); // Repeat every 1 seconds
+                timerHandler.postDelayed(this, 1000); // Repeat every 1 second
             }
         };
         timerHandler.post(timerRunnable); // Start the timer
 
         return view;
+    }
+
+    public void performSearch() {
+        // Ensure Bluetooth is enabled
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
+            return;
+        }
+
+        // Clear previous search results
+        devicesNames.clear();
+        readyDevices.clear();
+        btNames.notifyDataSetChanged();
+
+        // Start discovery
+        Toast.makeText(getActivity(), "开始搜索蓝牙设备...", Toast.LENGTH_SHORT).show();
+        bluetoothAdapter.startDiscovery();
+
+        // Register for broadcasts when a device is discovered
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        getActivity().registerReceiver(receiver, filter);
+
+        // Register for broadcasts when discovery has finished
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        getActivity().registerReceiver(receiver, filter);
     }
 
     @Override
@@ -202,5 +243,7 @@ public class Bluetooth_top1Fragment extends Fragment {
         if (timerHandler != null && timerRunnable != null) {
             timerHandler.removeCallbacks(timerRunnable);
         }
+        // Unregister the broadcast receiver
+        getActivity().unregisterReceiver(receiver);
     }
 }
