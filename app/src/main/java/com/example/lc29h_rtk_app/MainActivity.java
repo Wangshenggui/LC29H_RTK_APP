@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
 import com.example.lc29h_rtk_app.main_fragment.FloatingWidgetService;
 import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
+import com.example.lc29h_rtk_app.main_fragment.SettingFragment;
 import com.example.lc29h_rtk_app.main_fragment.WebFragment;
 import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -236,7 +237,9 @@ public class MainActivity extends AppCompatActivity {
         BluetoothFragment mBluetoothFragment = new BluetoothFragment();
         NtripFragment mNtripFragment = new NtripFragment();
         WebFragment mWebFragment = new WebFragment();
-        fragments = new Fragment[]{mBluetoothFragment, mNtripFragment, mWebFragment};
+        SettingFragment mSettingFragment = new SettingFragment();
+
+        fragments = new Fragment[]{mBluetoothFragment, mNtripFragment, mWebFragment, mSettingFragment};
         mFragmentManager = getSupportFragmentManager();
         lastFragment = 0;
         mFragmentManager.beginTransaction()
@@ -259,6 +262,10 @@ public class MainActivity extends AppCompatActivity {
             } else if (i == R.id.Web && lastFragment != 2) {
                 switchFragment(lastFragment, 2);
                 lastFragment = 2;
+                return true;
+            } else if (i == R.id.Set && lastFragment != 3) {
+                switchFragment(lastFragment, 3);
+                lastFragment = 3;
                 return true;
             }
             return false;
