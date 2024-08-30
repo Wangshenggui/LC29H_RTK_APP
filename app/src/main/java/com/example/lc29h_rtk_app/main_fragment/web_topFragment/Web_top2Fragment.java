@@ -32,8 +32,13 @@ public class Web_top2Fragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private static final String APK_BASE_URL = "http://47.109.46.41/app/LC29H_RTK_App-";
+    private static final String APK_EXTENSION = ".apk";
+    private static final String VERSION_URL = "http://47.109.46.41/app/version.txt"; // 替换为实际的版本 URL
+
     private String mParam1;
     private String mParam2;
+    private String mApkUrl; // 用于保存 APK 下载链接
 
     public Web_top2Fragment() {
         // Required empty public constructor
@@ -73,13 +78,16 @@ public class Web_top2Fragment extends Fragment {
         new Thread(() -> {
             try {
                 // 获取服务器上的版本号
-                URL url = new URL("http://47.109.46.41/app/version.txt"); // 替换为实际的 URL
+                URL url = new URL(VERSION_URL);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String serverVersion = reader.readLine().trim(); // 获取版本号
                 reader.close();
+
+                // 保存 APK 下载链接
+                mApkUrl = APK_BASE_URL + serverVersion + APK_EXTENSION;
 
                 // 获取当前应用的版本号
                 String currentVersion = getCurrentAppVersion();
@@ -121,9 +129,13 @@ public class Web_top2Fragment extends Fragment {
     }
 
     private void startDownload() {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("http://47.109.46.41/app/app-release.apk")); // 替换为实际的 APK URL
-        startActivity(intent);
+        if (mApkUrl != null) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(mApkUrl)); // 使用动态构建的 APK URL
+            startActivity(intent);
+        } else {
+            MainActivity.showToast(getActivity(), "下载链接无效");
+        }
     }
 
     private int compareVersionStrings(String version1, String version2) {
