@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -29,6 +31,8 @@ import com.example.lc29h_rtk_app.main_fragment.NtripFragment;
 import com.example.lc29h_rtk_app.main_fragment.SettingFragment;
 import com.example.lc29h_rtk_app.main_fragment.WebFragment;
 import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.InputStream;
@@ -231,6 +235,22 @@ public class MainActivity extends AppCompatActivity {
         mNavigationView = findViewById(R.id.main_navigation_bar);
         initFragment();
         initListener();
+
+        // 设置徽章
+        Menu menu = mNavigationView.getMenu();
+        MenuItem setItem = menu.findItem(R.id.Set);
+
+        // 创建徽章并配置
+        BadgeDrawable badgeDrawable = BadgeDrawable.create(this);
+        badgeDrawable.setNumber(1); // 设置徽章上的数字
+        badgeDrawable.setBackgroundColor(Color.RED); // 设置徽章背景颜色
+        badgeDrawable.setBadgeTextColor(Color.WHITE); // 设置徽章文字颜色
+
+        // 使用 BottomNavigationView 的 BadgeDrawable API
+        BottomNavigationView bottomNavigationView = findViewById(R.id.main_navigation_bar);
+        bottomNavigationView.getOrCreateBadge(R.id.Set).setNumber(1);
+        bottomNavigationView.getOrCreateBadge(R.id.Set).setBackgroundColor(Color.RED);
+        bottomNavigationView.getOrCreateBadge(R.id.Set).setBadgeTextColor(Color.WHITE);
     }
 
     private void initFragment() {
