@@ -251,6 +251,15 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.getOrCreateBadge(R.id.Set).setNumber(1);
         bottomNavigationView.getOrCreateBadge(R.id.Set).setBackgroundColor(Color.RED);
         bottomNavigationView.getOrCreateBadge(R.id.Set).setBadgeTextColor(Color.WHITE);
+
+        //不显示
+        bottomNavigationView.removeBadge(R.id.Set);
+
+        //显示
+        badgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.Set);
+        badgeDrawable.setNumber(1);
+        badgeDrawable.setBackgroundColor(Color.RED);
+        badgeDrawable.setBadgeTextColor(Color.WHITE);
     }
 
     private void initFragment() {

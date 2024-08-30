@@ -92,8 +92,10 @@ public class SettingFragment extends Fragment {
             navigateToAccountSettings();
         });
 
-//        notification_badge = view.findViewById(R.id.notification_badge);
-//        notification_badge.setVisibility(View.GONE);
+        notification_badge = view.findViewById(R.id.notification_badge);
+        notification_badge.setVisibility(View.GONE);
+
+        checkForUpdateInit();
 
         return view;
     }
@@ -101,6 +103,36 @@ public class SettingFragment extends Fragment {
     private void navigateToAccountSettings() {
         // Navigate to account settings
         checkForUpdate();
+    }
+
+    private void checkForUpdateInit() {
+        new Thread(() -> {
+            try {
+                // 获取服务器上的版本号
+                URL url = new URL(VERSION_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String serverVersion = reader.readLine().trim(); // 获取版本号
+                reader.close();
+
+                // 获取当前应用的版本号
+                String currentVersion = getCurrentAppVersion();
+
+                // 对比版本号
+                if (currentVersion != null && compareVersionStrings(currentVersion, serverVersion) < 0) {
+                    // 当前版本小于服务器版本，提示用户更新
+                    notification_badge.setVisibility(View.VISIBLE);
+                } else {
+                    // 当前版本已是最新
+                    notification_badge.setVisibility(View.GONE);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() -> MainActivity.showToast(getActivity(), "检查更新失败"));
+            }
+        }).start();
     }
 
     private void checkForUpdate() {
