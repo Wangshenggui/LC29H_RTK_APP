@@ -8,16 +8,6 @@
     tools:context=".main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment">
 
     <TextView
-        android:id="@+id/text_view_placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="草泥马2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/gga_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,8 +15,7 @@
         android:textSize="18sp"
         android:layout_marginBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_view_placeholder" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/rmc_text_view"

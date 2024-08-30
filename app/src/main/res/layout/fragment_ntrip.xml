@@ -7,31 +7,6 @@
     android:orientation="vertical"
     tools:context=".main_fragment.NtripFragment">
 
-<!--    <Button-->
-<!--        android:id="@+id/connectButton"-->
-<!--        android:text="连接TCP"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/sendButton"-->
-<!--        android:text="发送数据连接"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/sendggaButton"-->
-<!--        android:text="发送gga"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/showGGA"-->
-<!--        android:text="GGA"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/main_ntrip_top_navigation_bar"
         android:layout_width="0dp"
