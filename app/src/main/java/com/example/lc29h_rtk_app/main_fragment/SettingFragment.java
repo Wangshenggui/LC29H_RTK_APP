@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,13 @@ public class SettingFragment extends Fragment {
     private String mApkUrl; // 用于保存 APK 下载链接
 
     Intent intent;
+
+    private Handler handler = new Handler();
+    private Runnable toastRunnable;
+
+    String DetectionCurrentVersion;
+    String DetectionServerVersion;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -102,6 +110,57 @@ public class SettingFragment extends Fragment {
 
         checkForUpdateInit();
 
+
+        toastRunnable = new Runnable() {
+            @Override
+            public void run() {
+//                checkForUpdateInit();
+
+                new Thread(() -> {
+                    try {
+                        // 获取服务器上的版本号
+                        URL url = new URL(VERSION_URL);
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("GET");
+
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        String serverVersion = reader.readLine().trim(); // 获取版本号
+                        reader.close();
+
+                        DetectionServerVersion = serverVersion;
+
+                        // 获取当前应用的版本号
+                        String currentVersion = getCurrentAppVersion();
+
+                        DetectionCurrentVersion = currentVersion;
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        requireActivity().runOnUiThread(() -> MainActivity.showToast(getActivity(), "检查更新失败"));
+                    }
+                }).start();
+
+                // 对比版本号
+                if (DetectionCurrentVersion != null && compareVersionStrings(DetectionCurrentVersion, DetectionServerVersion) < 0) {
+                    // 当前版本小于服务器版本，提示用户更新
+                    notification_badge.setVisibility(View.VISIBLE);
+                    intent.putExtra("message", "true");
+                } else {
+                    // 当前版本已是最新
+                    notification_badge.setVisibility(View.GONE);
+                    intent.putExtra("message", "false");
+                }
+                // 发送广播
+                requireContext().sendBroadcast(intent);
+
+                // 继续每秒钟执行
+                handler.postDelayed(this, 1000);
+            }
+        };
+        // 启动定时任务
+        handler.post(toastRunnable);
+
+
         return view;
     }
 
@@ -128,11 +187,11 @@ public class SettingFragment extends Fragment {
                 // 对比版本号
                 if (currentVersion != null && compareVersionStrings(currentVersion, serverVersion) < 0) {
                     // 当前版本小于服务器版本，提示用户更新
-                    notification_badge.setVisibility(View.VISIBLE);
+//                    notification_badge.setVisibility(View.VISIBLE);
                     intent.putExtra("message", "true");
                 } else {
                     // 当前版本已是最新
-                    notification_badge.setVisibility(View.GONE);
+//                    notification_badge.setVisibility(View.GONE);
                     intent.putExtra("message", "false");
                 }
                 // 发送广播
@@ -219,4 +278,12 @@ public class SettingFragment extends Fragment {
             MainActivity.showToast(getActivity(), "下载链接无效");
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // 移除所有回调和任务
+        handler.removeCallbacks(toastRunnable);
+    }
+
 }
