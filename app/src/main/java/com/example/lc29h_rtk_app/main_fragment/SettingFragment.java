@@ -42,6 +42,8 @@ public class SettingFragment extends Fragment {
     private static final String VERSION_URL = "http://47.109.46.41/app/version.txt"; // 替换为实际的版本 URL
     private String mApkUrl; // 用于保存 APK 下载链接
 
+    Intent intent;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -75,6 +77,9 @@ public class SettingFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        // 创建 Intent 并设置要传递的数据
+        intent = new Intent("MY_CUSTOM_ACTION");
     }
 
     @Override
@@ -124,10 +129,14 @@ public class SettingFragment extends Fragment {
                 if (currentVersion != null && compareVersionStrings(currentVersion, serverVersion) < 0) {
                     // 当前版本小于服务器版本，提示用户更新
                     notification_badge.setVisibility(View.VISIBLE);
+                    intent.putExtra("message", "true");
                 } else {
                     // 当前版本已是最新
                     notification_badge.setVisibility(View.GONE);
+                    intent.putExtra("message", "false");
                 }
+                // 发送广播
+                requireContext().sendBroadcast(intent);
             } catch (IOException e) {
                 e.printStackTrace();
                 requireActivity().runOnUiThread(() -> MainActivity.showToast(getActivity(), "检查更新失败"));

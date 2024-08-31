@@ -37,6 +37,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -159,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
     private int lastFragment;
     private Fragment[] fragments;
 
+    BadgeDrawable badgeDrawable;
+    BottomNavigationView bottomNavigationView;
+
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -173,11 +177,22 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
     private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             // 处理接收到的消息
+            if(Objects.equals(message, "true")){
+                //显示
+                badgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.Set);
+                badgeDrawable.setNumber(1);
+                badgeDrawable.setBackgroundColor(Color.RED);
+                badgeDrawable.setBadgeTextColor(Color.WHITE);
+            } else {
+                //不显示
+                bottomNavigationView.removeBadge(R.id.Set);
+            }
         }
     };
 
@@ -193,6 +208,9 @@ public class MainActivity extends AppCompatActivity {
 //        MediaPlayer mediaPlayer = MediaPlayer.create(this,R.raw.music_test);
 //        mediaPlayer.start();
 
+        // 注册广播接收器
+        IntentFilter filter = new IntentFilter("MY_CUSTOM_ACTION");
+        registerReceiver(messageReceiver, filter);
 
         // 延迟加载其他Fragment以避免崩溃
         new Handler().postDelayed(this::loadOtherFragments, 500);
@@ -241,25 +259,19 @@ public class MainActivity extends AppCompatActivity {
         MenuItem setItem = menu.findItem(R.id.Set);
 
         // 创建徽章并配置
-        BadgeDrawable badgeDrawable = BadgeDrawable.create(this);
+        badgeDrawable = BadgeDrawable.create(this);
         badgeDrawable.setNumber(1); // 设置徽章上的数字
         badgeDrawable.setBackgroundColor(Color.RED); // 设置徽章背景颜色
         badgeDrawable.setBadgeTextColor(Color.WHITE); // 设置徽章文字颜色
 
         // 使用 BottomNavigationView 的 BadgeDrawable API
-        BottomNavigationView bottomNavigationView = findViewById(R.id.main_navigation_bar);
+        bottomNavigationView = findViewById(R.id.main_navigation_bar);
         bottomNavigationView.getOrCreateBadge(R.id.Set).setNumber(1);
         bottomNavigationView.getOrCreateBadge(R.id.Set).setBackgroundColor(Color.RED);
         bottomNavigationView.getOrCreateBadge(R.id.Set).setBadgeTextColor(Color.WHITE);
 
-        //不显示
+        //默认情况下不显示
         bottomNavigationView.removeBadge(R.id.Set);
-
-        //显示
-        badgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.Set);
-        badgeDrawable.setNumber(1);
-        badgeDrawable.setBackgroundColor(Color.RED);
-        badgeDrawable.setBadgeTextColor(Color.WHITE);
     }
 
     private void initFragment() {
