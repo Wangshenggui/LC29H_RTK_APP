@@ -14,10 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.lc29h_rtk_app.BtThread.ConnectThread;
-import com.example.lc29h_rtk_app.BtThread.ConnectedThread;
 import com.example.lc29h_rtk_app.R;
-import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
-import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top2Fragment;
 import com.example.lc29h_rtk_app.main_fragment.web_topFragment.Web_top1Fragment;
 import com.example.lc29h_rtk_app.main_fragment.web_topFragment.Web_top2Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -40,7 +37,6 @@ public class WebFragment extends Fragment {
     private Fragment[] fragments;
 
     public static ConnectThread connectThread;
-    public static ConnectedThread connectedThread;
 
     // TODO: Rename and change types of parameters
     private String mParam1;

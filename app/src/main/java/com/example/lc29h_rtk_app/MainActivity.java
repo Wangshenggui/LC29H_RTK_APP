@@ -317,9 +317,6 @@ public class MainActivity extends AppCompatActivity {
         if (BluetoothFragment.connectThread != null) {
             BluetoothFragment.connectThread.cancel();
         }
-        if (BluetoothFragment.connectedThread != null) {
-            BluetoothFragment.connectedThread.cancel();
-        }
     }
 
     private void checkBatteryOptimization() {
