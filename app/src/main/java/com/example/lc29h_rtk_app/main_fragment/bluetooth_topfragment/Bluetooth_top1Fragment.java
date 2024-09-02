@@ -157,11 +157,6 @@ public class Bluetooth_top1Fragment extends Fragment {
                         connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
                         connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
 
-                        connectedThread.btWriteString("$PAIR062,3,0*3D\r\n");
-                        connectedThread.btWriteString("$PAIR062,2,0*3C\r\n");
-                        connectedThread.btWriteString("$PAIR062,5,0*3B\r\n");
-                        connectedThread.btWriteString("$PAIR062,1,0*3F\r\n");
-
                         //播报蓝牙已连接
                         MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(),R.raw.bluetooth_connected);
                         mediaPlayer.start();
