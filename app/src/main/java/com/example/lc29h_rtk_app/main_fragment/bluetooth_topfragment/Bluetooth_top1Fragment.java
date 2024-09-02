@@ -144,7 +144,8 @@ public class Bluetooth_top1Fragment extends Fragment {
             BluetoothDevice device = readyDevices.get(position);
             bluetoothGatt = device.connectGatt(getActivity(), false, gattCallback);
 
-            Toast.makeText(getActivity(), "正在连接 " + device.getName(), Toast.LENGTH_SHORT).show();
+
+            MainActivity.showToast(getActivity(),"正在连接 " + device.getName());
         });
 
         // Initialize and start the timer
@@ -176,7 +177,7 @@ public class Bluetooth_top1Fragment extends Fragment {
             }
             btNames.notifyDataSetChanged();
         } else {
-            Toast.makeText(getActivity(), "没有设备已经配对！", Toast.LENGTH_SHORT).show();
+            MainActivity.showToast(getActivity(),"没有设备已经配对！");
         }
     }
 
@@ -198,14 +199,14 @@ public class Bluetooth_top1Fragment extends Fragment {
         isScanning = true;
         btnScan.setText("Stop Scanning");
         bluetoothLeScanner.startScan(null, buildScanSettings(), leScanCallback);
-        Toast.makeText(getActivity(), "开始扫描...", Toast.LENGTH_SHORT).show();
+        MainActivity.showToast(getActivity(),"开始扫描...");
     }
 
     private void stopScan() {
         isScanning = false;
         btnScan.setText("Scan BLE");
         bluetoothLeScanner.stopScan(leScanCallback);
-        Toast.makeText(getActivity(), "扫描停止", Toast.LENGTH_SHORT).show();
+        MainActivity.showToast(getActivity(),"扫描停止");
     }
 
     private ScanSettings buildScanSettings() {
@@ -226,7 +227,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                     readyDevices.add(device);
                     getActivity().runOnUiThread(() -> {
                         btNames.notifyDataSetChanged(); // Update ListView
-                        Toast.makeText(getActivity(), "发现设备: " + deviceName, Toast.LENGTH_SHORT).show(); // Show Toast
+                        MainActivity.showToast(getActivity(),"发现设备: " + deviceName);
                     });
                 }
             }
@@ -242,7 +243,7 @@ public class Bluetooth_top1Fragment extends Fragment {
         @Override
         public void onScanFailed(int errorCode) {
             Log.e("BluetoothScan", "Scan failed with error: " + errorCode);
-            Toast.makeText(getActivity(), "扫描失败: " + errorCode, Toast.LENGTH_SHORT).show();
+            MainActivity.showToast(getActivity(),"扫描失败: " + errorCode);
         }
     };
 
@@ -251,18 +252,18 @@ public class Bluetooth_top1Fragment extends Fragment {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getActivity(), "已连接 " + gatt.getDevice().getName(), Toast.LENGTH_SHORT).show();
+                    MainActivity.showToast(getActivity(),"已连接 " + gatt.getDevice().getName());
                 });
                 gatt.discoverServices();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getActivity(), "蓝牙已断开", Toast.LENGTH_SHORT).show();
+                    MainActivity.showToast(getActivity(),"蓝牙已断开");
                 });
             }
         }
 
         @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // 获取服务
                 BluetoothGattService service = gatt.getService(UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"));
@@ -289,6 +290,12 @@ public class Bluetooth_top1Fragment extends Fragment {
                 }
             }
         }
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                gatt.requestMtu(512);
+            }
+        }
 
 
         @Override
@@ -305,9 +312,9 @@ public class Bluetooth_top1Fragment extends Fragment {
 
             // Handle received data
             getActivity().runOnUiThread(() -> {
-//                Toast.makeText(getActivity(), "收到消息\n" + receivedData, Toast.LENGTH_LONG).show();
+//                Toast.makeText(getActivity(), "长度\n" + receivedData.length(), Toast.LENGTH_LONG).show();
                 MainActivity.setReadGGAString(receivedData);
-//                MainActivity.showToast(getActivity(), "Received data: " + receivedData);
+                MainActivity.showToast(getActivity(), "长度\n" + receivedData.length());
             });
         }
     };
