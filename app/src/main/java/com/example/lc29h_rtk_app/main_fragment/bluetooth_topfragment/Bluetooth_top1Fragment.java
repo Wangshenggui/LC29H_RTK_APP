@@ -75,6 +75,8 @@ public class Bluetooth_top1Fragment extends Fragment {
     private Handler timerHandler;
     private Runnable timerRunnable;
 
+    private int ScanTimeCount = 0;
+
     public static Bluetooth_top1Fragment newInstance(String param1, String param2) {
         Bluetooth_top1Fragment fragment = new Bluetooth_top1Fragment();
         Bundle args = new Bundle();
@@ -122,8 +124,8 @@ public class Bluetooth_top1Fragment extends Fragment {
         btNames = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, devicesNames);
         BtList.setAdapter(btNames);
 
-        // Load paired devices initially
-        loadPairedDevices();
+//        // 初始加载成对设备
+//        loadPairedDevices();
 
         // Set up the scan button
         btnScan.setOnClickListener(v -> {
@@ -141,6 +143,10 @@ public class Bluetooth_top1Fragment extends Fragment {
                 bluetoothGatt = null;
             }
 
+            isScanning = false;
+            btnScan.setText("搜索蓝牙");
+            bluetoothLeScanner.stopScan(leScanCallback);
+
             BluetoothDevice device = readyDevices.get(position);
             bluetoothGatt = device.connectGatt(getActivity(), false, gattCallback);
 
@@ -154,8 +160,16 @@ public class Bluetooth_top1Fragment extends Fragment {
             @Override
             public void run() {
                 // Timer task code here
-                // Example: Toast message
-                // MainActivity.showToast(getActivity(), MainActivity.getReadGGAString());
+
+                if(ScanTimeCount>0){
+                    ScanTimeCount--;
+                    if(ScanTimeCount==0){
+                        isScanning = false;
+                        btnScan.setText("搜索蓝牙");
+                        bluetoothLeScanner.stopScan(leScanCallback);
+                    }
+                }
+
 
                 // Schedule the next execution
                 timerHandler.postDelayed(this, 1000); // Repeat every 1 seconds
@@ -197,16 +211,16 @@ public class Bluetooth_top1Fragment extends Fragment {
         btNames.notifyDataSetChanged();
 
         isScanning = true;
-        btnScan.setText("Stop Scanning");
+        btnScan.setText("停止搜索");
         bluetoothLeScanner.startScan(null, buildScanSettings(), leScanCallback);
-        MainActivity.showToast(getActivity(),"开始扫描...");
+
+        ScanTimeCount = 15;
     }
 
     private void stopScan() {
         isScanning = false;
-        btnScan.setText("Scan BLE");
+        btnScan.setText("搜索蓝牙");
         bluetoothLeScanner.stopScan(leScanCallback);
-        MainActivity.showToast(getActivity(),"扫描停止");
     }
 
     private ScanSettings buildScanSettings() {
@@ -227,7 +241,6 @@ public class Bluetooth_top1Fragment extends Fragment {
                     readyDevices.add(device);
                     getActivity().runOnUiThread(() -> {
                         btNames.notifyDataSetChanged(); // Update ListView
-                        MainActivity.showToast(getActivity(),"发现设备: " + deviceName);
                     });
                 }
             }
@@ -310,11 +323,10 @@ public class Bluetooth_top1Fragment extends Fragment {
             byte[] data = characteristic.getValue();
             String receivedData = new String(data, StandardCharsets.UTF_8);
 
-            // Handle received data
-            getActivity().runOnUiThread(() -> {
+                // Handle received data
+                getActivity().runOnUiThread(() -> {
 //                Toast.makeText(getActivity(), "长度\n" + receivedData.length(), Toast.LENGTH_LONG).show();
                 MainActivity.setReadGGAString(receivedData);
-                MainActivity.showToast(getActivity(), "长度\n" + receivedData.length());
             });
         }
     };
