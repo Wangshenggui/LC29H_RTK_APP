@@ -14,7 +14,7 @@
         tools:layout_editor_absoluteY="0dp" />
 
     <Button
-        android:id="@+id/btn_scan"
+        android:id="@+id/btn_Scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="搜索蓝牙"
@@ -24,5 +24,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/BtList"
         app:layout_constraintVertical_bias="0.142" />
+
+    <Button
+        android:id="@+id/btn_Send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_Scan"
+        android:layout_alignParentEnd="true"
+        android:text="发送数据"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_Scan"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

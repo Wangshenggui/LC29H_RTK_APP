@@ -55,7 +55,8 @@ public class Bluetooth_top1Fragment extends Fragment {
 
     // Bluetooth operation variables
     private ListView BtList;
-    private Button btnScan;
+    private Button btn_Scan;
+    private Button btn_Send;
     private Intent intent;
     private BluetoothAdapter bluetoothAdapter;
     private List<String> devicesNames;
@@ -70,6 +71,8 @@ public class Bluetooth_top1Fragment extends Fragment {
     private BluetoothLeScanner bluetoothLeScanner;
     private boolean isScanning = false;
     private Set<String> deviceNamesSet;
+
+    private boolean ConnectStatus = false;
 
     // Timer-related variables
     private Handler timerHandler;
@@ -107,7 +110,8 @@ public class Bluetooth_top1Fragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_bluetooth_top1, container, false);
 
         BtList = view.findViewById(R.id.BtList);
-        btnScan = view.findViewById(R.id.btn_scan);
+        btn_Scan = view.findViewById(R.id.btn_Scan);
+        btn_Send = view.findViewById(R.id.btn_Send);
 
         // Initialize Bluetooth adapter and scanner
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -128,11 +132,20 @@ public class Bluetooth_top1Fragment extends Fragment {
 //        loadPairedDevices();
 
         // Set up the scan button
-        btnScan.setOnClickListener(v -> {
+        btn_Scan.setOnClickListener(v -> {
             if (isScanning) {
                 stopScan();
             } else {
                 startScan();
+            }
+        });
+
+        btn_Send.setOnClickListener(v -> {
+            if(ConnectStatus){
+                characteristic.setValue("niganmaaiyo");
+                bluetoothGatt.writeCharacteristic(characteristic);
+            } else {
+                MainActivity.showToast(getActivity(),"请连接蓝牙");
             }
         });
 
@@ -144,7 +157,7 @@ public class Bluetooth_top1Fragment extends Fragment {
             }
 
             isScanning = false;
-            btnScan.setText("搜索蓝牙");
+            btn_Scan.setText("搜索蓝牙");
             bluetoothLeScanner.stopScan(leScanCallback);
 
             BluetoothDevice device = readyDevices.get(position);
@@ -165,7 +178,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                     ScanTimeCount--;
                     if(ScanTimeCount==0){
                         isScanning = false;
-                        btnScan.setText("搜索蓝牙");
+                        btn_Scan.setText("搜索蓝牙");
                         bluetoothLeScanner.stopScan(leScanCallback);
                     }
                 }
@@ -211,7 +224,7 @@ public class Bluetooth_top1Fragment extends Fragment {
         btNames.notifyDataSetChanged();
 
         isScanning = true;
-        btnScan.setText("停止搜索");
+        btn_Scan.setText("停止搜索");
         bluetoothLeScanner.startScan(null, buildScanSettings(), leScanCallback);
 
         ScanTimeCount = 15;
@@ -219,7 +232,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
     private void stopScan() {
         isScanning = false;
-        btnScan.setText("搜索蓝牙");
+        btn_Scan.setText("搜索蓝牙");
         bluetoothLeScanner.stopScan(leScanCallback);
     }
 
@@ -292,9 +305,12 @@ public class Bluetooth_top1Fragment extends Fragment {
                             gatt.writeDescriptor(descriptor);
                         }
 
-                        // 发送示例命令
-                        characteristic.setValue("$PAIR062,3,0*3D\r\n");
-                        gatt.writeCharacteristic(characteristic);
+//                        // 发送示例命令
+//                        characteristic.setValue("$PAIR062,3,0*3D\r\n");
+//                        gatt.writeCharacteristic(characteristic);
+
+                        //已连接
+                        ConnectStatus = true;
 
                         // 播放声音
                         MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), R.raw.bluetooth_connected);
