@@ -53,34 +53,35 @@ public class Bluetooth_top1Fragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // Bluetooth operation variables
-    private ListView BtList;
-    private Button btn_Scan;
-    private Button btn_Send;
-    private Button DisconnectBluetoothButton;
-    private Intent intent;
-    private BluetoothAdapter bluetoothAdapter;
-    private List<String> devicesNames;
-    private ArrayList<BluetoothDevice> readyDevices;
-    private ArrayAdapter<String> btNames;
+    // 蓝牙操作相关变量
+    private ListView BtList;  // 显示蓝牙设备列表的ListView
+    private Button btn_Scan;  // 扫描蓝牙设备的按钮
+    private Button btn_Send;  // 发送数据的按钮
+    private Button DisconnectBluetoothButton; // 断开蓝牙连接的按钮
+    private Intent intent; // 蓝牙启用的Intent
+    private BluetoothAdapter bluetoothAdapter; // 蓝牙适配器
+    private List<String> devicesNames; // 存储设备名称的列表
+    private ArrayList<BluetoothDevice> readyDevices; // 存储找到的蓝牙设备
+    private ArrayAdapter<String> btNames; // 蓝牙设备名称的适配器
 
-    // BLE connection variables
-    private BluetoothGatt bluetoothGatt;
-    private BluetoothGattCharacteristic characteristic;
+    // BLE连接相关变量
+    private BluetoothGatt bluetoothGatt; // 蓝牙GATT
+    private BluetoothGattCharacteristic characteristic; // 蓝牙特征
 
-    // BLE scanning variables
-    private BluetoothLeScanner bluetoothLeScanner;
-    private boolean isScanning = false;
-    private Set<String> deviceNamesSet;
+    // BLE扫描相关变量
+    private BluetoothLeScanner bluetoothLeScanner; // BLE扫描器
+    private boolean isScanning = false; // 是否正在扫描
+    private Set<String> deviceNamesSet; // 存储设备名称的集合，防止重复
 
-    private boolean ConnectStatus = false;
+    private boolean ConnectStatus = false; // 蓝牙连接状态
 
-    // Timer-related variables
-    private Handler timerHandler;
-    private Runnable timerRunnable;
+    // 定时器相关变量
+    private Handler timerHandler; // 定时器Handler
+    private Runnable timerRunnable; // 定时器任务
 
-    private int ScanTimeCount = 0;
+    private int ScanTimeCount = 0; // 扫描时间计数
 
+    // 创建Fragment的新实例
     public static Bluetooth_top1Fragment newInstance(String param1, String param2) {
         Bluetooth_top1Fragment fragment = new Bluetooth_top1Fragment();
         Bundle args = new Bundle();
@@ -91,7 +92,7 @@ public class Bluetooth_top1Fragment extends Fragment {
     }
 
     public Bluetooth_top1Fragment() {
-        // Required empty public constructor
+        // 必须的空构造函数
     }
 
     @Override
@@ -107,7 +108,7 @@ public class Bluetooth_top1Fragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // 为这个Fragment加载视图
         View view = inflater.inflate(R.layout.fragment_bluetooth_top1, container, false);
 
         BtList = view.findViewById(R.id.BtList);
@@ -115,7 +116,7 @@ public class Bluetooth_top1Fragment extends Fragment {
         btn_Send = view.findViewById(R.id.btn_Send);
         DisconnectBluetoothButton = view.findViewById(R.id.DisconnectBluetoothButton);
 
-        // Initialize Bluetooth adapter and scanner
+        // 初始化蓝牙适配器和扫描器
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         deviceNamesSet = new HashSet<>();
@@ -130,29 +131,31 @@ public class Bluetooth_top1Fragment extends Fragment {
         btNames = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, devicesNames);
         BtList.setAdapter(btNames);
 
-        // Set up the scan button
+        // 设置扫描按钮的点击事件
         btn_Scan.setOnClickListener(v -> {
             if (isScanning) {
-                stopScan();
+                stopScan(); // 如果正在扫描，则停止扫描
             } else {
-                startScan();
+                startScan(); // 否则开始扫描
             }
         });
 
+        // 设置发送按钮的点击事件
         btn_Send.setOnClickListener(v -> {
             if (ConnectStatus) {
-                characteristic.setValue("niganmaaiyo");
-                bluetoothGatt.writeCharacteristic(characteristic);
+                characteristic.setValue("niganmaaiyo"); // 设置要发送的值
+                bluetoothGatt.writeCharacteristic(characteristic); // 写入特征值
             } else {
                 MainActivity.showToast(getActivity(), "请连接蓝牙");
             }
         });
 
+        // 设置断开连接按钮的点击事件
         DisconnectBluetoothButton.setOnClickListener(v -> {
             if (ConnectStatus) {
                 if (bluetoothGatt != null) {
-                    bluetoothGatt.disconnect();
-                    bluetoothGatt.close();
+                    bluetoothGatt.disconnect(); // 断开连接
+                    bluetoothGatt.close(); // 关闭GATT
                     bluetoothGatt = null;
                     ConnectStatus = false;
                     MainActivity.showToast(getActivity(), "蓝牙已断开");
@@ -162,6 +165,7 @@ public class Bluetooth_top1Fragment extends Fragment {
             }
         });
 
+        // 设置ListView的点击事件，连接选择的设备
         BtList.setOnItemClickListener((parent, view1, position, id) -> {
             if (bluetoothGatt != null) {
                 bluetoothGatt.disconnect();
@@ -179,12 +183,12 @@ public class Bluetooth_top1Fragment extends Fragment {
             MainActivity.showToast(getActivity(), "正在连接 " + device.getName());
         });
 
-        // Initialize and start the timer
+        // 初始化并启动定时器
         timerHandler = new Handler(Looper.getMainLooper());
         timerRunnable = new Runnable() {
             @Override
             public void run() {
-                // Timer task code here
+                // 定时器任务代码
                 if (ScanTimeCount > 0) {
                     ScanTimeCount--;
                     if (ScanTimeCount == 0) {
@@ -194,17 +198,18 @@ public class Bluetooth_top1Fragment extends Fragment {
                     }
                 }
 
-                // Schedule the next execution
-                timerHandler.postDelayed(this, 1000); // Repeat every 1 seconds
+                // 计划下一次执行
+                timerHandler.postDelayed(this, 1000); // 每秒重复执行一次
             }
         };
-        timerHandler.post(timerRunnable); // Start the timer
+        timerHandler.post(timerRunnable); // 启动定时器
 
         return view;
     }
 
     @SuppressLint("MissingPermission")
     private void loadPairedDevices() {
+        // 加载已配对的设备
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices != null && pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
@@ -220,6 +225,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void startScan() {
+        // 开始扫描BLE设备
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
@@ -237,24 +243,27 @@ public class Bluetooth_top1Fragment extends Fragment {
         btn_Scan.setText("停止搜索");
         bluetoothLeScanner.startScan(null, buildScanSettings(), leScanCallback);
 
-        ScanTimeCount = 15;
+        ScanTimeCount = 15; // 设置扫描时间为15秒
     }
 
     private void stopScan() {
+        // 停止扫描BLE设备
         isScanning = false;
         btn_Scan.setText("搜索蓝牙");
         bluetoothLeScanner.stopScan(leScanCallback);
     }
 
     private ScanSettings buildScanSettings() {
+        // 构建扫描设置
         return new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY) // 设置扫描模式为低延迟
                 .build();
     }
 
     private final ScanCallback leScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
+            // 扫描结果回调
             BluetoothDevice device = result.getDevice();
             if (device != null && device.getName() != null) {
                 String deviceName = device.getName();
@@ -263,7 +272,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                     devicesNames.add(deviceName);
                     readyDevices.add(device);
                     getActivity().runOnUiThread(() -> {
-                        btNames.notifyDataSetChanged(); // Update ListView
+                        btNames.notifyDataSetChanged(); // 更新ListView
                     });
                 }
             }
@@ -271,6 +280,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
+            // 批量扫描结果回调
             for (ScanResult result : results) {
                 onScanResult(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, result);
             }
@@ -278,6 +288,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         @Override
         public void onScanFailed(int errorCode) {
+            // 扫描失败回调
             Log.e("BluetoothScan", "Scan failed with error: " + errorCode);
             MainActivity.showToast(getActivity(), "扫描失败: " + errorCode);
         }
@@ -286,11 +297,12 @@ public class Bluetooth_top1Fragment extends Fragment {
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            // 连接状态变化回调
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 getActivity().runOnUiThread(() -> {
                     MainActivity.showToast(getActivity(), "已连接 " + gatt.getDevice().getName());
                 });
-                gatt.discoverServices();
+                gatt.discoverServices(); // 发现服务
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 getActivity().runOnUiThread(() -> {
                     MainActivity.showToast(getActivity(), "蓝牙已断开");
@@ -301,6 +313,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            // MTU变化回调
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // 获取服务
                 BluetoothGattService service = gatt.getService(UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"));
@@ -313,13 +326,13 @@ public class Bluetooth_top1Fragment extends Fragment {
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
                         if (descriptor != null) {
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                            gatt.writeDescriptor(descriptor);
+                            gatt.writeDescriptor(descriptor); // 写入描述符
                         }
 
-                        // 已连接
+                        // 设置连接状态为已连接
                         ConnectStatus = true;
 
-                        // 播放声音
+                        // 播放连接声音
                         MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), R.raw.bluetooth_connected);
                         mediaPlayer.start();
                     }
@@ -329,27 +342,40 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            // 服务发现回调
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                gatt.requestMtu(512);
+                gatt.requestMtu(512); // 请求MTU为512
             }
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            // 特征写入回调
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                // Handle successful write
+                // 处理成功写入
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            // 特征值变化回调
             byte[] data = characteristic.getValue();
             String receivedData = new String(data, StandardCharsets.UTF_8);
 
-            // Handle received data
-            getActivity().runOnUiThread(() -> {
-                MainActivity.setReadGGAString(receivedData);
-            });
+            // 解析数据，处理 \r\n
+            // 如果收到的数据中包含 \r\n，则根据 \r\n 分割字符串
+            String[] parts = receivedData.split("\r\n");
+
+            // 查找第一个有效的数据片段
+            for (String part : parts) {
+                if (!part.trim().isEmpty()) {
+                    // 只处理第一个有效的数据片段
+                    getActivity().runOnUiThread(() -> {
+                        MainActivity.setReadGGAString(part);
+                    });
+                    break; // 处理完第一个数据后，退出循环
+                }
+            }
         }
     };
 
@@ -357,16 +383,15 @@ public class Bluetooth_top1Fragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (timerHandler != null && timerRunnable != null) {
-            timerHandler.removeCallbacks(timerRunnable);
+            timerHandler.removeCallbacks(timerRunnable); // 移除定时器任务
         }
         if (bluetoothGatt != null) {
-            bluetoothGatt.disconnect();
-            bluetoothGatt.close();
+            bluetoothGatt.disconnect(); // 断开蓝牙连接
+            bluetoothGatt.close(); // 关闭GATT
             bluetoothGatt = null;
         }
         if (isScanning) {
-            stopScan();
+            stopScan(); // 停止扫描
         }
     }
 }
-
