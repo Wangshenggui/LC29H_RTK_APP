@@ -35,9 +35,6 @@ import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static OutputStream outputStream = null;
-    public static InputStream inputStream = null;
-
     public static String ReadGGSString = " ";
     public static String ReadRMCString = " ";
     public static boolean BluetoothConFlag = false;

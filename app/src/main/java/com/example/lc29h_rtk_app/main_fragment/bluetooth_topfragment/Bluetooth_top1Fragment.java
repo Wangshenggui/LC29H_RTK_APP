@@ -73,8 +73,6 @@ public class Bluetooth_top1Fragment extends Fragment {
     private boolean isScanning = false; // 是否正在扫描
     private Set<String> deviceNamesSet; // 存储设备名称的集合，防止重复
 
-    private boolean ConnectStatus = false; // 蓝牙连接状态
-
     // 定时器相关变量
     private Handler timerHandler; // 定时器Handler
     private Runnable timerRunnable; // 定时器任务
@@ -142,7 +140,7 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         // 设置发送按钮的点击事件
         btn_Send.setOnClickListener(v -> {
-            if (ConnectStatus) {
+            if (MainActivity.getBluetoothConFlag()) {
                 characteristic.setValue("niganmaaiyo"); // 设置要发送的值
                 bluetoothGatt.writeCharacteristic(characteristic); // 写入特征值
             } else {
@@ -152,12 +150,12 @@ public class Bluetooth_top1Fragment extends Fragment {
 
         // 设置断开连接按钮的点击事件
         DisconnectBluetoothButton.setOnClickListener(v -> {
-            if (ConnectStatus) {
+            if (MainActivity.getBluetoothConFlag()) {
                 if (bluetoothGatt != null) {
                     bluetoothGatt.disconnect(); // 断开连接
                     bluetoothGatt.close(); // 关闭GATT
                     bluetoothGatt = null;
-                    ConnectStatus = false;
+                    MainActivity.setBluetoothConFlag(false);
                     MainActivity.showToast(getActivity(), "蓝牙已断开");
                 }
             } else {
@@ -307,7 +305,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     MainActivity.showToast(getActivity(), "蓝牙已断开");
                 });
-                ConnectStatus = false;
+                MainActivity.setBluetoothConFlag(false);
             }
         }
 
@@ -330,7 +328,7 @@ public class Bluetooth_top1Fragment extends Fragment {
                         }
 
                         // 设置连接状态为已连接
-                        ConnectStatus = true;
+                        MainActivity.setBluetoothConFlag(true);
 
                         // 播放连接声音
                         MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), R.raw.bluetooth_connected);
