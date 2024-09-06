@@ -65,8 +65,8 @@ public class Bluetooth_top1Fragment extends Fragment {
     private ArrayAdapter<String> btNames; // 蓝牙设备名称的适配器
 
     // BLE连接相关变量
-    private BluetoothGatt bluetoothGatt; // 蓝牙GATT
-    private BluetoothGattCharacteristic characteristic; // 蓝牙特征
+    public static BluetoothGatt bluetoothGatt; // 蓝牙GATT
+    public static BluetoothGattCharacteristic characteristic; // 蓝牙特征
 
     // BLE扫描相关变量
     private BluetoothLeScanner bluetoothLeScanner; // BLE扫描器

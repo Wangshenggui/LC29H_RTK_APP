@@ -16,6 +16,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.lc29h_rtk_app.main_fragment.BluetoothFragment;
+import com.example.lc29h_rtk_app.main_fragment.bluetooth_topfragment.Bluetooth_top1Fragment;
 import com.example.lc29h_rtk_app.main_fragment.ntrip_topfragment.Ntrip_top1Fragment;
 
 import java.io.IOException;
@@ -215,6 +217,10 @@ public class SocketService extends Service {
 
                         // 将字节数组转换为字符串
                         String receivedMessage = new String(rawMessage, StandardCharsets.UTF_8);
+
+                        // 同步发送数据到其他地方 (比如蓝牙设备)
+                        Bluetooth_top1Fragment.characteristic.setValue(rawMessage); // 设置要发送的值
+                        Bluetooth_top1Fragment.bluetoothGatt.writeCharacteristic(Bluetooth_top1Fragment.characteristic); // 写入特征值
 
                         // 显示接收的消息长度
                         showToast("Received data, length: " + rawMessage.length);
