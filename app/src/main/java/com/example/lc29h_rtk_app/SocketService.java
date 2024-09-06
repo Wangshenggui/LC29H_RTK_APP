@@ -138,36 +138,37 @@ public class SocketService extends Service {
         socketThread = new Thread(() -> {
             while (true) {
                 try {
-                    socket = new Socket(ipAddress, port);
-                    outputStream = socket.getOutputStream();
-                    inputStream = socket.getInputStream();
+                    if(MainActivity.getBluetoothConFlag()) {
+                        socket = new Socket(ipAddress, port);
+                        outputStream = socket.getOutputStream();
+                        inputStream = socket.getInputStream();
 
-                    showToast("已连接服务器");
+                        showToast("已连接服务器");
 
-                    if(MainActivity.getBluetoothConFlag()){
-                        originalInput = CORSAccountText + ":" + CORSPasswordText;
-                        // 编码字符串
-                        String encodedString = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                        if (MainActivity.getBluetoothConFlag()) {
+                            originalInput = CORSAccountText + ":" + CORSPasswordText;
+                            // 编码字符串
+                            String encodedString = null;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+                            }
+
+                            String message = "GET /" +
+                                    MountPointText +
+                                    " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
+                                    encodedString +
+                                    "\r\n\r\n";
+
+                            if (MainActivity.isBound) {
+                                MainActivity.socketService.sendMessage(message);
+                            }
+                        } else {
+                            MainActivity.showToast(this, "蓝牙未连接");
                         }
 
-                        String message = "GET /" +
-                                MountPointText +
-                                " HTTP/1.0\r\nUser-Agent: NTRIP GNSSInternetRadio/1.4.10\r\nAccept: */*\r\nConnection: close\r\nAuthorization: Basic " +
-                                encodedString +
-                                "\r\n\r\n";
-
-                        if (MainActivity.isBound) {
-                            MainActivity.socketService.sendMessage(message);
-                        }
-                    }else{
-                        MainActivity.showToast(this,"蓝牙未连接");
+                        readFromSocket();
+                        break;  // 连接成功后退出循环
                     }
-
-                    readFromSocket();
-                    break;  // 连接成功后退出循环
-
                 } catch (IOException e) {
                     Log.e(TAG, "连接失败: " + e.getMessage());
                     showToast("连接失败，正在重试...");
@@ -223,8 +224,8 @@ public class SocketService extends Service {
                         Bluetooth_top1Fragment.bluetoothGatt.writeCharacteristic(Bluetooth_top1Fragment.characteristic); // 写入特征值
 
                         // 显示接收的消息长度
-                        showToast("Received data, length: " + rawMessage.length);
-//                        showToast("Message: " + receivedMessage);
+//                        showToast("Received data, length: " + rawMessage.length);
+                        showToast("Message: " + receivedMessage);
 
                         // 定义预期的消息字符串
                         String expectedMessageOK = "ICY 200 OK\r\n";
